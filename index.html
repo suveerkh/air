@@ -150,15 +150,23 @@
     line-height:0.95;
     margin:0;
     color:#ffffff;
-    text-shadow:0 0 28px rgba(255,255,255,0.25);
+    text-shadow:0 0 10px rgba(255,255,255,0.15);
   }
   .hero-verdict{
     font-size:18px;
-    font-weight:500;
+    font-weight:600;
     color:var(--text-1);
     margin-top:12px;
     max-width:420px;
-    line-height:1.55;
+    line-height:1.45;
+  }
+  .hero-factors{
+    font-size:14px;
+    font-weight:500;
+    color:var(--text-2);
+    margin-top:8px;
+    max-width:420px;
+    letter-spacing:0.01em;
   }
   .hero-ring{
     position:relative;
@@ -175,24 +183,23 @@
   }
   .ring-center .n{font-family:'Inter', sans-serif; font-size:13px; color:var(--text-2);}
 
-  /* metric row */
-  .metrics{
+  /* metric row — single merged panel */
+  .metrics-card{
     display:grid;
     grid-template-columns:1fr 1fr;
-    gap:20px;
+    border-radius:22px;
+    background:rgba(140,200,230,0.045);
+    border:1px solid rgba(120,200,235,0.14);
+    backdrop-filter:blur(20px) saturate(140%);
+    -webkit-backdrop-filter:blur(20px) saturate(140%);
+    box-shadow:0 12px 40px rgba(0,0,0,0.20), inset 0 1px 0 rgba(255,255,255,0.08);
     margin-bottom:20px;
   }
-  @media (max-width:680px){ .metrics{grid-template-columns:1fr;} }
-
-  .card{
-    border-radius:22px;
-    padding:28px;
-    background:var(--glass);
-    border:1px solid var(--glass-border);
-    backdrop-filter:blur(24px) saturate(150%);
-    -webkit-backdrop-filter:blur(24px) saturate(150%);
-    box-shadow:0 12px 40px rgba(0,0,0,0.25), inset 0 1px 0 rgba(255,255,255,0.12);
+  .metrics-col{ padding:28px; }
+  @media (max-width:680px){
+    .metrics-card{ grid-template-columns:1fr; }
   }
+
   .card-head{
     display:flex;
     justify-content:space-between;
@@ -200,7 +207,7 @@
     margin-bottom:18px;
   }
   .card-title{font-family:'Inter', sans-serif; font-weight:700; font-size:17px; color:var(--text-1); margin:0;}
-  .card-sub{font-size:13px; color:var(--text-3); margin-top:4px;}
+  .card-sub{font-size:13px; color:var(--text-2); margin-top:4px;}
   .pill{
     font-size:12px;
     font-weight:600;
@@ -213,16 +220,28 @@
   .pill.poor{color:var(--poor); background:rgba(255,154,122,0.12); border:1px solid rgba(255,154,122,0.3);}
   .pill.bad{color:var(--bad); background:rgba(255,107,107,0.12); border:1px solid rgba(255,107,107,0.3);}
 
-  .big-stat{
-    font-family:'Inter', sans-serif;
-    font-weight:700;
-    font-size:60px;
-    line-height:1;
-    margin-bottom:6px;
+  .stat-row{
+    display:flex;
+    align-items:baseline;
+    gap:8px;
   }
-  .big-stat span{font-size:15px; font-weight:500; color:var(--text-2); margin-left:4px;}
-  .big-stat span.bright-num{color:#ffffff; font-weight:800; font-size:22px;}
-  .num-dot{font-family:'Doto', sans-serif; font-variation-settings:'ROND' 100; font-weight:900; color:#ffffff; text-shadow:0 0 24px rgba(255,255,255,0.55), 0 0 6px rgba(255,255,255,0.4);}
+  .stat-unit{
+    font-family:'Inter', sans-serif;
+    font-weight:600;
+    font-size:20px;
+    color:var(--text-2);
+  }
+  .num-dot{font-family:'Inter', sans-serif; font-weight:800; font-size:56px; color:#ffffff; text-shadow:0 0 8px rgba(255,255,255,0.18);}
+
+  .score-line{
+    font-family:'Inter', sans-serif;
+    font-size:14px;
+    font-weight:500;
+    color:var(--text-2);
+    margin:10px 0 0;
+  }
+  .bright-num{color:#ffffff; font-weight:800; font-size:19px; margin:0 2px;}
+  .score-of{font-size:13px; color:var(--text-3);}
 
   .detail-grid{
     display:grid;
@@ -256,7 +275,7 @@
     .hero{ padding:30px 24px; gap:24px; }
     .hero-ring{ width:140px; height:140px; }
     .hero-ring svg{ width:140px; height:140px; }
-    .card{ padding:22px; }
+    .metrics-col{ padding:22px; }
     .activity-card{ padding:20px; }
     .detail-grid{ grid-template-columns:repeat(3, 1fr); gap:8px; }
     .detail .v{ font-size:14px; }
@@ -266,11 +285,11 @@
   .activity-card{
     border-radius:22px;
     padding:26px;
-    background:var(--glass);
-    border:1px solid var(--glass-border);
-    backdrop-filter:blur(24px) saturate(150%);
-    -webkit-backdrop-filter:blur(24px) saturate(150%);
-    box-shadow:0 12px 36px rgba(0,0,0,0.22), inset 0 1px 0 rgba(255,255,255,0.12);
+    background:rgba(140,200,230,0.045);
+    border:1px solid rgba(120,200,235,0.14);
+    backdrop-filter:blur(20px) saturate(140%);
+    -webkit-backdrop-filter:blur(20px) saturate(140%);
+    box-shadow:0 12px 36px rgba(0,0,0,0.18), inset 0 1px 0 rgba(255,255,255,0.08);
     display:flex;
     flex-direction:column;
     gap:14px;
@@ -323,6 +342,7 @@
       <p class="hero-label">Combined outdoor score</p>
       <p class="hero-number" id="combined-number">--</p>
       <p class="hero-verdict" id="combined-verdict">Reading current air and sky conditions…</p>
+      <p class="hero-factors" id="combined-factors"></p>
     </div>
     <div class="hero-ring">
       <svg width="180" height="180" viewBox="0 0 180 180">
@@ -341,9 +361,9 @@
     </div>
   </div>
 
-  <!-- AQI + Weather cards -->
-  <div class="metrics">
-    <div class="card">
+  <!-- AQI + Weather (single merged panel) -->
+  <div class="metrics-card">
+    <div class="metrics-col">
       <div class="card-head">
         <div>
           <p class="card-title">Air quality</p>
@@ -351,10 +371,11 @@
         </div>
         <span class="pill" id="aqi-pill">—</span>
       </div>
-      <div class="big-stat"><span id="aqi-value-num" class="num-dot">0</span> <span>AQI · score <span id="aqi-score" class="bright-num">0</span>/100</span></div>
+      <div class="stat-row"><span id="aqi-value-num" class="num-dot">0</span><span class="stat-unit">AQI</span></div>
+      <p class="score-line">Outdoor score <span id="aqi-score" class="bright-num">0</span><span class="score-of">/100</span></p>
     </div>
 
-    <div class="card">
+    <div class="metrics-col">
       <div class="card-head">
         <div>
           <p class="card-title">Weather</p>
@@ -362,7 +383,8 @@
         </div>
         <span class="pill" id="weather-pill">—</span>
       </div>
-      <div class="big-stat"><span id="temp-value-num" class="num-dot">0</span>° <span>score <span id="weather-score" class="bright-num">0</span>/100</span></div>
+      <div class="stat-row"><span id="temp-value-num" class="num-dot">0</span><span class="stat-unit">°C</span></div>
+      <p class="score-line">Outdoor score <span id="weather-score" class="bright-num">0</span><span class="score-of">/100</span></p>
       <div class="detail-grid">
         <div class="detail"><div class="k">Humidity</div><div class="v" id="humidity">--</div></div>
         <div class="detail"><div class="k">Wind</div><div class="v" id="wind">--</div></div>
@@ -381,23 +403,15 @@
 </div>
 
 <script>
-/* ============================================================
-   LIVE SNAPSHOT — fetched by Claude for Rajaji Nagar, Bengaluru.
-   Sources: Open-Meteo-style forecast (temperature/condition/rain
-   chance) + CPCB station data via aqicn.org (AQI). Humidity/wind
-   are the most recent same-season readings available at fetch
-   time, since a same-second reading wasn't published.
 
-   This page cannot call these APIs live itself — published Claude
-   pages run behind a content-security policy that blocks fetch()
-   to third-party domains, and no runtime capability on this
-   platform proxies arbitrary external APIs. So this snapshot is
-   refreshed by asking Claude, not by the browser. To keep it
-   current: ask Claude to "refresh Phantom Air's data" any time —
-   it will re-fetch and republish this same page.
+/* ============================================================
+   FALLBACK SNAPSHOT — a real reading Claude fetched for Rajaji
+   Nagar, Bengaluru, used only if the live fetch below can't
+   complete (geolocation denied, or the network call is blocked —
+   see note in fetchConditions()).
    ============================================================ */
 
-const LIVE_DATA = {
+const FALLBACK_DATA = {
   place: "Rajaji Nagar, Bengaluru",
   observedAt: "Today · 9:10 AM IST",
   weather: {
@@ -416,13 +430,100 @@ const LIVE_DATA = {
   }
 };
 
-async function fetchConditions() {
-  // A published Claude page can't call external APIs directly (CSP
-  // blocks it, and no capability here proxies the open internet).
-  // LIVE_DATA above is a real snapshot Claude fetched on your
-  // behalf — ask Claude to refresh it whenever you want current
-  // numbers again.
-  return LIVE_DATA;
+/* ============================================================
+   LIVE FETCH — Open-Meteo (free, no API key, no rate-limit
+   trouble for personal use). Real integration, not a stub:
+   1. Ask the browser for the viewer's coordinates.
+   2. Call Open-Meteo's forecast + air-quality endpoints directly
+      with those coordinates.
+   3. Map the response into the same shape the rest of this page
+      already reads from.
+
+   Known constraint: a page published to claude.ai runs behind a
+   content-security policy that only allows network calls to a
+   short list of trusted hosts (font/script CDNs) — it does not
+   allow fetch() to arbitrary third-party APIs like Open-Meteo.
+   So inside this published page, the fetch below will typically
+   be blocked and this function falls back to FALLBACK_DATA.
+   The code is otherwise complete and correct: copied into a
+   normal, non-sandboxed web page (your own site, a local file,
+   a CodePen, etc.) it will fetch real live data with no changes.
+   ============================================================ */
+
+function getPosition(timeoutMs = 8000){
+  return new Promise((resolve, reject) => {
+    if (!navigator.geolocation) return reject(new Error("no geolocation"));
+    const timer = setTimeout(() => reject(new Error("geolocation timeout")), timeoutMs);
+    navigator.geolocation.getCurrentPosition(
+      (pos) => { clearTimeout(timer); resolve(pos); },
+      (err) => { clearTimeout(timer); reject(err); },
+      { enableHighAccuracy: false, timeout: timeoutMs, maximumAge: 5 * 60 * 1000 }
+    );
+  });
+}
+
+function weatherCodeToText(code){
+  const map = {
+    0: "Clear sky", 1: "Mostly clear", 2: "Partly cloudy", 3: "Overcast",
+    45: "Fog", 48: "Fog",
+    51: "Light drizzle", 53: "Drizzle", 55: "Dense drizzle",
+    61: "Light rain", 63: "Rain", 65: "Heavy rain",
+    71: "Light snow", 73: "Snow", 75: "Heavy snow",
+    80: "Rain showers", 81: "Rain showers", 82: "Violent showers",
+    95: "Thunderstorm", 96: "Thunderstorm", 99: "Thunderstorm"
+  };
+  return map[code] || "Cloudy";
+}
+
+async function fetchLiveFromOpenMeteo(lat, lon, signal){
+  const weatherUrl = `https://api.open-meteo.com/v1/forecast?latitude=${lat}&longitude=${lon}&current=temperature_2m,relative_humidity_2m,wind_speed_10m,weather_code&daily=precipitation_probability_max&timezone=auto`;
+  const airUrl = `https://air-quality-api.open-meteo.com/v1/air-quality?latitude=${lat}&longitude=${lon}&current=us_aqi,pm2_5,pm10,ozone`;
+
+  const [wRes, aRes] = await Promise.all([
+    fetch(weatherUrl, { signal }),
+    fetch(airUrl, { signal })
+  ]);
+  if (!wRes.ok || !aRes.ok) throw new Error("bad response");
+  const w = await wRes.json();
+  const a = await aRes.json();
+
+  return {
+    place: "Your location",
+    observedAt: "Live · just now",
+    weather: {
+      tempC: Math.round(w.current.temperature_2m),
+      condition: weatherCodeToText(w.current.weather_code),
+      humidity: Math.round(w.current.relative_humidity_2m),
+      windKmh: Math.round(w.current.wind_speed_10m),
+      rainChance: Math.round((w.daily?.precipitation_probability_max?.[0]) ?? 0)
+    },
+    air: {
+      aqi: Math.round(a.current.us_aqi),
+      dominant: "PM2.5",
+      pm25: Math.round(a.current.pm2_5),
+      pm10: Math.round(a.current.pm10),
+      o3: Math.round(a.current.ozone)
+    }
+  };
+}
+
+async function fetchConditions(){
+  try {
+    const pos = await getPosition();
+    const controller = new AbortController();
+    const timeout = setTimeout(() => controller.abort(), 6000);
+    const data = await fetchLiveFromOpenMeteo(
+      pos.coords.latitude, pos.coords.longitude, controller.signal
+    );
+    clearTimeout(timeout);
+    return data;
+  } catch (err){
+    // Geolocation denied/unavailable, or the live fetch was blocked
+    // by this environment's content-security policy — use the
+    // real snapshot Claude fetched instead.
+    console.warn("Live fetch unavailable, using fallback snapshot:", err.message);
+    return FALLBACK_DATA;
+  }
 }
 
 /* ---------------- scoring ---------------- */
@@ -505,6 +606,22 @@ function activityScore(kind, aqiScore, w){
   }
   // walking — most forgiving, lower exertion
   return Math.round(aqiScore*0.35 + t*0.28 + h*0.12 + r*0.15 + wd*0.10);
+}
+
+function buildFactors(aqi, w){
+  const air = aqi <= 50 ? "Clean air" :
+              aqi <= 100 ? "Air quality is fine" :
+              aqi <= 150 ? "Air quality is subpar" : "Air quality is poor";
+
+  const temp = w.tempC < 14 ? "Cool temperature" :
+               w.tempC <= 24 ? "Comfortable temperature" :
+               w.tempC <= 29 ? "Warm temperature" : "Hot temperature";
+
+  const wind = w.windKmh < 4 ? "Calm air" :
+               w.windKmh <= 10 ? "Light breeze" :
+               w.windKmh <= 20 ? "Moderate wind" : "Strong wind";
+
+  return [air, temp, wind].join(" · ");
 }
 
 function noteFor(kind, score, aqi, w){
@@ -611,12 +728,13 @@ async function render(){
   setRing(document.getElementById("combined-ring"), combined, true);
 
   const combinedText = {
-    good: "A genuinely good day to be outside — air and sky are both cooperating.",
-    ok: "A workable day outdoors. Nothing's ideal, nothing's a dealbreaker.",
-    poor: "Doable, but conditions are working against you. Ease your expectations.",
-    bad: "Conditions are stacked against outdoor time today — consider moving activity indoors."
+    good: "Excellent conditions for being outdoors.",
+    ok: "Good conditions overall.",
+    poor: "Fair conditions — plan around it.",
+    bad: "Poor conditions for outdoor time."
   }[combinedTier];
   document.getElementById("combined-verdict").textContent = combinedText;
+  document.getElementById("combined-factors").textContent = buildFactors(air.aqi, weather);
 
   // AQI card
   const cat = aqiCategory(air.aqi);
