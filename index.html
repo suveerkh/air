@@ -632,24 +632,32 @@ function buildFactors(aqi, w){
   return [air, temp, wind].join(" · ");
 }
 
+const ACTIVITY_NOTES = {
+  running: {
+    good: "Clean air and comfortable temps — a good day to push your normal pace.",
+    ok: "Decent for a run, though it's worth easing off the pace a little today.",
+    poor: "Keep it short and easy — your lungs are working harder than the effort should require.",
+    bad: "Better to move today's run indoors — air and heat are both working against you."
+  },
+  walking: {
+    good: "Pleasant out there — a relaxed walk won't feel like effort today.",
+    ok: "A comfortable walk, nothing that should slow you down much.",
+    poor: "Still walkable, just keep the pace easy and skip anything brisk.",
+    bad: "A short walk is fine, but skip the long loop — conditions aren't in your favor."
+  },
+  cycling: {
+    good: "Light wind and clear air make for an easy, fast spin.",
+    ok: "Rideable without much fuss, though the wind may slow your pace a touch.",
+    poor: "Ride if you must, but dial back the intensity — air quality is the main issue.",
+    bad: "Skip the distance ride today, or keep it very short and easy."
+  }
+};
+
 function noteFor(kind, score, aqi, w){
   const tier = tierFor(score);
-  const heatNote = w.tempC >= 28 ? "the heat will build fast" :
-                    w.tempC <= 14 ? "layer up, it's cool out" : "temps stay comfortable";
-  const airNote = aqi > 100 ? "air quality is the main limiter today" :
-                   aqi > 60 ? "air quality is fine but not pristine" : "air is clean";
-  const rainNote = w.rainChance >= 40 ? "keep an eye on rain" : null;
-
-  const parts = [airNote, heatNote];
-  if (rainNote) parts.push(rainNote);
-
-  const prefix = {
-    running: tier === "good" ? "Great morning for a run" : tier === "ok" ? "Fine for an easier run" : tier === "poor" ? "Consider a shorter, easier run" : "Better to skip outdoor running today",
-    walking: tier === "good" ? "Ideal for a walk" : tier === "ok" ? "A comfortable walk" : tier === "poor" ? "Still walkable, just pace it" : "Keep walks brief today",
-    cycling: tier === "good" ? "Good conditions to ride" : tier === "ok" ? "Solid riding weather" : tier === "poor" ? "Rideable, ease off the effort" : "Rough day to ride outdoors"
-  }[kind];
-
-  return `${prefix} — ${parts.join(", ")}.`;
+  let note = ACTIVITY_NOTES[kind][tier];
+  if (w.rainChance >= 40) note += " Keep an eye on the sky — rain looks likely.";
+  return note;
 }
 
 /* ---------------- rendering ---------------- */
