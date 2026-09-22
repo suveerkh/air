@@ -3,7 +3,7 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
-<title>Phantom Air</title>
+<title>Phantom Air — Rajaji Nagar, Bengaluru</title>
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
 <link href="https://fonts.googleapis.com/css2?family=Doto:ROND,wght@0..100,100..900&family=Poppins:wght@600;700&family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
@@ -186,7 +186,7 @@
   /* metric row — single merged panel */
   .metrics-card{
     display:grid;
-    grid-template-columns:1fr 1fr;
+    grid-template-columns:1fr auto 1fr;
     border-radius:22px;
     background:rgba(140,200,230,0.045);
     border:1px solid rgba(120,200,235,0.14);
@@ -195,9 +195,15 @@
     box-shadow:0 12px 40px rgba(0,0,0,0.20), inset 0 1px 0 rgba(255,255,255,0.08);
     margin-bottom:20px;
   }
+  .metrics-divider{
+    width:1px;
+    margin:28px 0;
+    background:linear-gradient(180deg, transparent, rgba(180,220,240,0.22) 20%, rgba(180,220,240,0.22) 80%, transparent);
+  }
   .metrics-col{ padding:28px; }
   @media (max-width:680px){
     .metrics-card{ grid-template-columns:1fr; }
+    .metrics-divider{ width:auto; height:1px; margin:0 28px; }
   }
 
   .card-head{
@@ -231,7 +237,7 @@
     font-size:20px;
     color:var(--text-2);
   }
-  .num-dot{font-family:'Inter', sans-serif; font-weight:800; font-size:56px; color:#ffffff; text-shadow:0 0 8px rgba(255,255,255,0.18);}
+  .num-dot{font-family:'Doto', sans-serif; font-variation-settings:'ROND' 100; font-weight:900; font-size:56px; color:#ffffff; text-shadow:0 0 14px rgba(255,255,255,0.3);}
 
   .score-line{
     font-family:'Inter', sans-serif;
@@ -374,6 +380,8 @@
       <div class="stat-row"><span id="aqi-value-num" class="num-dot">0</span><span class="stat-unit">AQI</span></div>
       <p class="score-line">Outdoor score <span id="aqi-score" class="bright-num">0</span><span class="score-of">/100</span></p>
     </div>
+
+    <div class="metrics-divider"></div>
 
     <div class="metrics-col">
       <div class="card-head">
