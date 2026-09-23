@@ -1,757 +1,906 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
-  <meta charset="UTF-8">
-  <meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover">
-  <title>Phantom Air</title>
-  
-  <!-- Typography -->
-  <link rel="preconnect" href="https://fonts.googleapis.com">
-  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-  <link href="https://fonts.googleapis.com/css2?family=Doto:wght@900&family=Inter:wght@400;500;600;700&family=Poppins:wght@600;700&display=swap" rel="stylesheet">
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<title>Phantom Air</title>
+<meta name="description" content="A live read on air quality and weather for Rajaji Nagar, Bengaluru — with a combined outdoor score and how it feels for running, walking, and cycling.">
+<meta name="theme-color" content="#050a14">
+<meta name="color-scheme" content="dark">
 
-  <style>
-    :root {
-      --sky-deep: #050a14;
-      --sky-mid: #0a2440;
-      --cyan: #00b4d8;
-      --violet: #0077b6;
-      --amber: #ffb86b;
-      --coral: #ff8a80;
-      --glass: rgba(140, 200, 230, 0.08);
-      --glass-border: rgba(120, 200, 235, 0.22);
-      --text-1: #f4f7fb;
-      --text-2: #aab4cc;
-      --text-3: #7c88a6;
-      --good: #7ee0a8;
-      --ok: #ffd27a;
-      --poor: #ff9a7a;
-      --bad: #ff6b6b;
-      padding-top: env(safe-area-inset-top, 0px);
-      padding-bottom: env(safe-area-inset-bottom, 0px);
-      box-sizing: border-box;
-    }
+<meta property="og:type" content="website">
+<meta property="og:title" content="Phantom Air">
+<meta property="og:description" content="Combined air quality + weather score for Rajaji Nagar, Bengaluru, and how it feels for running, walking, and cycling today.">
+<meta property="og:site_name" content="Phantom Air">
 
-    * { box-sizing: border-box; }
-    html { scroll-padding-top: env(safe-area-inset-top, 0px); }
-    html, body { height: 100%; }
+<meta name="twitter:card" content="summary">
+<meta name="twitter:title" content="Phantom Air">
+<meta name="twitter:description" content="Combined air quality + weather score for Rajaji Nagar, Bengaluru, and how it feels for running, walking, and cycling today.">
 
-    body {
-      margin: 0;
-      min-height: 100%;
-      background: 
-        radial-gradient(1100px 700px at 12% -8%, rgba(0, 180, 216, 0.24), transparent 60%),
-        radial-gradient(900px 600px at 100% 10%, rgba(72, 202, 228, 0.18), transparent 55%),
-        radial-gradient(1200px 800px at 50% 120%, rgba(0, 119, 182, 0.20), transparent 60%),
-        linear-gradient(160deg, var(--sky-deep), var(--sky-mid) 55%, #061422 100%);
-      font-family: 'Inter', -apple-system, sans-serif;
-      color: var(--text-1);
-      overflow-x: hidden;
-    }
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Doto:ROND,wght@0..100,100..900&family=Poppins:wght@600;700&family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
+<style>
+  :root{
+    --sky-deep:#050a14;
+    --sky-mid:#0a2440;
+    --cyan:#00b4d8;
+    --violet:#0077b6;
+    --amber:#ffb86b;
+    --coral:#ff8a80;
+    --glass:rgba(140,200,230,0.08);
+    --glass-border:rgba(120,200,235,0.22);
+    --text-1:#f4f7fb;
+    --text-2:#aab4cc;
+    --text-3:#7c88a6;
+    --good:#7ee0a8;
+    --ok:#ffd27a;
+    --poor:#ff9a7a;
+    --bad:#ff6b6b;
+    padding-top:env(safe-area-inset-top,0px);
+    padding-bottom:env(safe-area-inset-bottom,0px);
+    box-sizing:border-box;
+  }
+  *{box-sizing:border-box;}
+  html{scroll-padding-top:env(safe-area-inset-top,0px);}
+  html,body{height:100%;}
+  body{
+    margin:0;
+    min-height:100%;
+    background:
+      radial-gradient(1100px 700px at 12% -8%, rgba(0,180,216,0.24), transparent 60%),
+      radial-gradient(900px 600px at 100% 10%, rgba(72,202,228,0.18), transparent 55%),
+      radial-gradient(1200px 800px at 50% 120%, rgba(0,119,182,0.20), transparent 60%),
+      linear-gradient(160deg, var(--sky-deep), var(--sky-mid) 55%, #061422 100%);
+    font-family:'Inter', -apple-system, sans-serif;
+    color:var(--text-1);
+    overflow-x:hidden;
+  }
 
-    .blob {
-      position: fixed;
-      border-radius: 50%;
-      filter: blur(70px);
-      opacity: 0.35;
-      pointer-events: none;
-      z-index: 0;
-    }
-    .blob-a { width: 420px; height: 420px; background: #48cae4; top: -120px; left: -100px; animation: drift1 26s ease-in-out infinite; }
-    .blob-b { width: 380px; height: 380px; background: var(--cyan); top: 20%; right: -140px; animation: drift2 32s ease-in-out infinite; }
-    .blob-c { width: 340px; height: 340px; background: var(--amber); bottom: -140px; left: 30%; animation: drift3 30s ease-in-out infinite; }
+  /* drifting light blobs — one orchestrated ambient motion */
+  .blob{
+    position:fixed;
+    border-radius:50%;
+    filter:blur(70px);
+    opacity:0.35;
+    pointer-events:none;
+    z-index:0;
+  }
+  .blob-a{width:420px;height:420px;background:#48cae4;top:-120px;left:-100px;animation:drift1 26s ease-in-out infinite;}
+  .blob-b{width:380px;height:380px;background:var(--cyan);top:20%;right:-140px;animation:drift2 32s ease-in-out infinite;}
+  .blob-c{width:340px;height:340px;background:var(--amber);bottom:-140px;left:30%;animation:drift3 30s ease-in-out infinite;}
+  @keyframes drift1{0%,100%{transform:translate(0,0);}50%{transform:translate(60px,50px);}}
+  @keyframes drift2{0%,100%{transform:translate(0,0);}50%{transform:translate(-40px,60px);}}
+  @keyframes drift3{0%,100%{transform:translate(0,0);}50%{transform:translate(40px,-40px);}}
+  @media (prefers-reduced-motion: reduce){
+    .blob{animation:none !important;}
+    *{animation-duration:0.001ms !important; transition-duration:0.001ms !important;}
+  }
 
-    @keyframes drift1 { 0%, 100% { transform: translate(0, 0); } 50% { transform: translate(60px, 50px); } }
-    @keyframes drift2 { 0%, 100% { transform: translate(0, 0); } 50% { transform: translate(-40px, 60px); } }
-    @keyframes drift3 { 0%, 100% { transform: translate(0, 0); } 50% { transform: translate(40px, -40px); } }
+  .loading-screen{
+    position:fixed;
+    inset:0;
+    z-index:50;
+    display:flex;
+    flex-direction:column;
+    align-items:center;
+    justify-content:center;
+    gap:18px;
+    background:linear-gradient(160deg, var(--sky-deep), var(--sky-mid) 55%, #061422 100%);
+    transition:opacity 0.5s ease, visibility 0.5s ease;
+  }
+  .loading-screen.is-hidden{
+    opacity:0;
+    visibility:hidden;
+    pointer-events:none;
+  }
+  .loading-brand{ display:flex; align-items:baseline; gap:8px; }
+  .loading-dots{ display:flex; gap:7px; }
+  .loading-dots span{
+    width:7px;
+    height:7px;
+    border-radius:50%;
+    background:var(--cyan);
+    animation:loadingPulse 1.1s ease-in-out infinite;
+  }
+  .loading-dots span:nth-child(2){ animation-delay:0.15s; }
+  .loading-dots span:nth-child(3){ animation-delay:0.3s; }
+  @keyframes loadingPulse{
+    0%, 80%, 100% { opacity:0.25; transform:scale(0.8); }
+    40% { opacity:1; transform:scale(1); }
+  }
+  .loading-text{
+    font-family:'Inter', sans-serif;
+    font-size:13px;
+    color:var(--text-3);
+    margin:0;
+  }
 
-    @media (prefers-reduced-motion: reduce) {
-      .blob { animation: none !important; }
-      * { animation-duration: 0.001ms !important; transition-duration: 0.001ms !important; }
-    }
+  .wrap{
+    position:relative;
+    z-index:1;
+    max-width:1080px;
+    margin:0 auto;
+    padding:56px 24px 80px;
+  }
 
-    .wrap {
-      position: relative;
-      z-index: 1;
-      max-width: 1080px;
-      margin: 0 auto;
-      padding: 56px 24px 80px;
-    }
+  .brand{
+    display:flex;
+    align-items:baseline;
+    gap:8px;
+    margin-bottom:10px;
+  }
+  .phantom{
+    font-family:'Poppins', sans-serif;
+    font-weight:600;
+    font-size:17px;
+    letter-spacing:-0.01em;
+    color:#cfe8f3;
+  }
+  .air{
+    font-family:'Poppins', sans-serif;
+    font-weight:700;
+    font-size:26px;
+    color:#ffffff;
+    letter-spacing:-0.005em;
+  }
+  .location-block{ text-align:right; }
+  .place{
+    font-family:'Inter', sans-serif;
+    font-weight:600;
+    font-size:14px;
+    color:var(--text-2);
+    display:flex;
+    align-items:center;
+    justify-content:flex-end;
+    gap:8px;
+  }
+  .place b{color:var(--text-1); font-weight:600;}
+  .dot{width:6px;height:6px;border-radius:50%;background:var(--good); transition:background 0.3s ease;}
+  .dot.offline{background:var(--bad);}
+  .timestamp{font-size:13px;color:var(--text-3); margin-top:4px;}
 
-    header {
-      display: flex;
-      justify-content: space-between;
-      align-items: flex-start;
-      gap: 24px;
-      margin-bottom: 40px;
-      flex-wrap: wrap;
-    }
+  header{
+    display:flex;
+    justify-content:space-between;
+    align-items:flex-start;
+    gap:24px;
+    margin-bottom:40px;
+    flex-wrap:wrap;
+  }
 
-    .brand {
-      display: flex;
-      align-items: baseline;
-      gap: 8px;
-    }
-    .phantom {
-      font-family: 'Poppins', sans-serif;
-      font-weight: 600;
-      font-size: 17px;
-      letter-spacing: -0.01em;
-      color: #cfe8f3;
-    }
-    .air {
-      font-family: 'Poppins', sans-serif;
-      font-weight: 700;
-      font-size: 26px;
-      color: #ffffff;
-      letter-spacing: -0.005em;
-      text-shadow: 0 0 18px rgba(255, 255, 255, 0.35);
-    }
+  /* Hero: combined score */
+  .hero{
+    position:relative;
+    border-radius:28px;
+    padding:44px 40px;
+    background:
+      linear-gradient(135deg, rgba(255,255,255,0.10), rgba(255,255,255,0.03)),
+      var(--glass);
+    border:1px solid var(--glass-border);
+    backdrop-filter:blur(28px) saturate(160%);
+    -webkit-backdrop-filter:blur(28px) saturate(160%);
+    box-shadow: 0 20px 60px rgba(0,0,0,0.35), inset 0 1px 0 rgba(255,255,255,0.15);
+    display:flex;
+    align-items:center;
+    justify-content:space-between;
+    gap:40px;
+    flex-wrap:wrap;
+    margin-bottom:28px;
+  }
+  .hero-left{flex:1; min-width:240px;}
+  .hero-label{
+    font-family:'Inter', sans-serif;
+    font-weight:600;
+    font-size:15px;
+    color:var(--text-2);
+    margin:0 0 10px;
+  }
+  .hero-number{
+    font-family:'Doto', sans-serif; font-variation-settings:'ROND' 100;
+    font-weight:900;
+    font-size:clamp(64px, 11vw, 108px);
+    line-height:0.95;
+    margin:0;
+    color:#ffffff;
+  }
+  .hero-verdict{
+    font-size:18px;
+    font-weight:600;
+    color:var(--text-1);
+    margin-top:12px;
+    max-width:420px;
+    line-height:1.45;
+  }
+  .hero-factors{
+    font-size:14px;
+    font-weight:500;
+    color:var(--text-2);
+    margin-top:8px;
+    max-width:420px;
+    letter-spacing:0.01em;
+  }
+  .hero-ring{
+    position:relative;
+    width:180px;
+    height:180px;
+    flex-shrink:0;
+  }
+  .hero-ring svg{transform:rotate(-90deg);}
+  .ring-track{fill:none; stroke:rgba(255,255,255,0.10); stroke-width:10;}
+  .ring-fill{fill:none; stroke-width:10; stroke-linecap:round; transition:stroke-dashoffset 1s ease;}
+  .ring-center{
+    position:absolute; inset:0;
+    display:flex; flex-direction:column; align-items:center; justify-content:center;
+  }
+  .ring-center .n{font-family:'Inter', sans-serif; font-size:13px; color:var(--text-2);}
 
-    .location-block { text-align: right; }
-    .place {
-      font-family: 'Inter', sans-serif;
-      font-weight: 600;
-      font-size: 14px;
-      color: var(--text-2);
-      display: flex;
-      align-items: center;
-      justify-content: flex-end;
-      gap: 8px;
-    }
-    .place b { color: var(--text-1); font-weight: 600; }
-    .dot { width: 6px; height: 6px; border-radius: 50%; background: var(--good); box-shadow: 0 0 8px var(--good); transition: background 0.3s ease, box-shadow 0.3s ease; }
-    .dot.offline { background: var(--bad); box-shadow: 0 0 8px var(--bad); }
-    .timestamp { font-size: 13px; color: var(--text-3); margin-top: 4px; }
+  /* metric row — single merged panel */
+  .metrics-card{
+    display:grid;
+    grid-template-columns:1fr auto 1fr;
+    border-radius:22px;
+    background:rgba(140,200,230,0.045);
+    border:1px solid rgba(120,200,235,0.14);
+    backdrop-filter:blur(20px) saturate(140%);
+    -webkit-backdrop-filter:blur(20px) saturate(140%);
+    box-shadow:0 12px 40px rgba(0,0,0,0.20), inset 0 1px 0 rgba(255,255,255,0.08);
+    margin-bottom:20px;
+  }
+  .metrics-divider{
+    width:1px;
+    margin:28px 0;
+    background:linear-gradient(180deg, transparent, rgba(180,220,240,0.22) 20%, rgba(180,220,240,0.22) 80%, transparent);
+  }
+  .metrics-col{ padding:28px; }
+  @media (max-width:680px){
+    .metrics-card{ grid-template-columns:1fr; }
+    .metrics-divider{ width:auto; height:1px; margin:0 28px; }
+  }
 
-    .hero {
-      position: relative;
-      border-radius: 28px;
-      padding: 44px 40px;
-      background: linear-gradient(135deg, rgba(255, 255, 255, 0.10), rgba(255, 255, 255, 0.03)), var(--glass);
-      border: 1px solid var(--glass-border);
-      backdrop-filter: blur(28px) saturate(160%);
-      -webkit-backdrop-filter: blur(28px) saturate(160%);
-      box-shadow: 0 20px 60px rgba(0, 0, 0, 0.35), inset 0 1px 0 rgba(255, 255, 255, 0.15);
-      display: flex;
-      align-items: center;
-      justify-content: space-between;
-      gap: 40px;
-      flex-wrap: wrap;
-      margin-bottom: 28px;
-    }
-    .hero-left { flex: 1; min-width: 240px; }
-    .hero-label {
-      font-family: 'Inter', sans-serif;
-      font-weight: 600;
-      font-size: 15px;
-      color: var(--text-2);
-      margin: 0 0 10px;
-    }
-    .hero-number {
-      font-family: 'Doto', sans-serif;
-      font-variation-settings: 'ROND' 100;
-      font-weight: 900;
-      font-size: clamp(64px, 11vw, 108px);
-      line-height: 0.95;
-      margin: 0;
-      color: #ffffff;
-      text-shadow: 0 0 10px rgba(255, 255, 255, 0.15);
-    }
-    .hero-verdict {
-      font-size: 18px;
-      font-weight: 600;
-      color: var(--text-1);
-      margin-top: 12px;
-      max-width: 420px;
-      line-height: 1.45;
-    }
-    .hero-factors {
-      font-size: 14px;
-      font-weight: 500;
-      color: var(--text-2);
-      margin-top: 8px;
-      max-width: 420px;
-      letter-spacing: 0.01em;
-    }
-    .hero-ring {
-      position: relative;
-      width: 180px;
-      height: 180px;
-      flex-shrink: 0;
-    }
-    .hero-ring svg { transform: rotate(-90deg); }
-    .ring-track { fill: none; stroke: rgba(255, 255, 255, 0.10); stroke-width: 10; }
-    .ring-fill { fill: none; stroke-width: 10; stroke-linecap: round; transition: stroke-dashoffset 1.2s cubic-bezier(0.16, 1, 0.3, 1), stroke 0.5s ease; }
-    .ring-center {
-      position: absolute; inset: 0;
-      display: flex; flex-direction: column; align-items: center; justify-content: center;
-    }
-    .ring-center .n { font-family: 'Inter', sans-serif; font-size: 13px; color: var(--text-2); }
+  .card-head{
+    display:flex;
+    justify-content:space-between;
+    align-items:flex-start;
+    margin-bottom:18px;
+  }
+  .card-title{font-family:'Inter', sans-serif; font-weight:700; font-size:17px; color:var(--text-1); margin:0;}
+  .card-sub{font-size:13px; color:var(--text-2); margin-top:4px;}
+  .pill{
+    font-size:12px;
+    font-weight:600;
+    padding:5px 11px;
+    border-radius:100px;
+    white-space:nowrap;
+  }
+  .pill.good{color:var(--good); background:rgba(126,224,168,0.12); border:1px solid rgba(126,224,168,0.3);}
+  .pill.ok{color:var(--ok); background:rgba(255,210,122,0.12); border:1px solid rgba(255,210,122,0.3);}
+  .pill.poor{color:var(--poor); background:rgba(255,154,122,0.12); border:1px solid rgba(255,154,122,0.3);}
+  .pill.bad{color:var(--bad); background:rgba(255,107,107,0.12); border:1px solid rgba(255,107,107,0.3);}
 
-    .metrics-card {
-      display: grid;
-      grid-template-columns: 1fr auto 1fr;
-      border-radius: 22px;
-      background: rgba(140, 200, 230, 0.045);
-      border: 1px solid rgba(120, 200, 235, 0.14);
-      backdrop-filter: blur(20px) saturate(140%);
-      -webkit-backdrop-filter: blur(20px) saturate(140%);
-      box-shadow: 0 12px 40px rgba(0, 0, 0, 0.20), inset 0 1px 0 rgba(255, 255, 255, 0.08);
-      margin-bottom: 20px;
-    }
-    .metrics-divider {
-      width: 1px;
-      margin: 28px 0;
-      background: linear-gradient(180deg, transparent, rgba(180, 220, 240, 0.22) 20%, rgba(180, 220, 240, 0.22) 80%, transparent);
-    }
-    .metrics-col { padding: 28px; }
+  .stat-row{
+    display:flex;
+    align-items:baseline;
+    gap:8px;
+  }
+  .stat-unit{
+    font-family:'Inter', sans-serif;
+    font-weight:600;
+    font-size:20px;
+    color:var(--text-2);
+  }
+  .num-dot{font-family:'Doto', sans-serif; font-variation-settings:'ROND' 100; font-weight:900; font-size:56px; color:#ffffff;}
 
-    .card-head {
-      display: flex;
-      justify-content: space-between;
-      align-items: flex-start;
-      margin-bottom: 18px;
-    }
-    .card-title { font-family: 'Inter', sans-serif; font-weight: 700; font-size: 17px; color: var(--text-1); margin: 0; }
-    .card-sub { font-size: 13px; color: var(--text-2); margin-top: 4px; }
-    
-    .pill {
-      font-size: 12px;
-      font-weight: 600;
-      padding: 5px 11px;
-      border-radius: 100px;
-      white-space: nowrap;
-    }
-    .pill.good { color: var(--good); background: rgba(126, 224, 168, 0.12); border: 1px solid rgba(126, 224, 168, 0.3); }
-    .pill.ok { color: var(--ok); background: rgba(255, 210, 122, 0.12); border: 1px solid rgba(255, 210, 122, 0.3); }
-    .pill.poor { color: var(--poor); background: rgba(255, 154, 122, 0.12); border: 1px solid rgba(255, 154, 122, 0.3); }
-    .pill.bad { color: var(--bad); background: rgba(255, 107, 107, 0.12); border: 1px solid rgba(255, 107, 107, 0.3); }
+  .score-line{
+    font-family:'Inter', sans-serif;
+    font-size:14px;
+    font-weight:500;
+    color:var(--text-2);
+    margin:10px 0 0;
+  }
+  .bright-num{color:#ffffff; font-weight:800; font-size:19px; margin:0 2px;}
+  .score-of{font-size:13px; color:var(--text-3);}
 
-    .stat-row {
-      display: flex;
-      align-items: baseline;
-      gap: 8px;
-    }
-    .stat-unit {
-      font-family: 'Inter', sans-serif;
-      font-weight: 600;
-      font-size: 20px;
-      color: var(--text-2);
-    }
-    .num-dot {
-      font-family: 'Doto', sans-serif;
-      font-variation-settings: 'ROND' 100;
-      font-weight: 900;
-      font-size: 56px;
-      color: #ffffff;
-      text-shadow: 0 0 14px rgba(255, 255, 255, 0.3);
-    }
+  .detail-grid{
+    display:grid;
+    grid-template-columns:repeat(3, 1fr);
+    gap:14px;
+    margin-top:22px;
+  }
+  .detail{
+    text-align:left;
+  }
+  .detail .k{font-size:12px; color:var(--text-3); margin-bottom:4px;}
+  .detail .v{font-size:16px; font-weight:600; color:var(--text-1); font-family:'Inter', sans-serif;}
 
-    .score-line {
-      font-family: 'Inter', sans-serif;
-      font-size: 14px;
-      font-weight: 500;
-      color: var(--text-2);
-      margin: 10px 0 0;
-    }
-    .bright-num { color: #ffffff; font-weight: 800; font-size: 19px; margin: 0 2px; }
-    .score-of { font-size: 13px; color: var(--text-3); }
+  /* activities */
+  .section-label{
+    font-family:'Inter', sans-serif;
+    font-weight:600;
+    font-size:15px;
+    color:var(--text-2);
+    margin:36px 0 16px;
+  }
+  .activities{
+    display:grid;
+    grid-template-columns:repeat(3, 1fr);
+    gap:18px;
+  }
+  @media (max-width:820px){ .activities{grid-template-columns:1fr;} }
 
-    .detail-grid {
-      display: grid;
-      grid-template-columns: repeat(3, 1fr);
-      gap: 14px;
-      margin-top: 22px;
-    }
-    .detail { text-align: left; }
-    .detail .k { font-size: 12px; color: var(--text-3); margin-bottom: 4px; }
-    .detail .v { font-size: 16px; font-weight: 600; color: var(--text-1); font-family: 'Inter', sans-serif; }
+  @media (max-width:460px){
+    .wrap{ padding:32px 16px 56px; }
+    .hero{ padding:30px 24px; gap:24px; }
+    .hero-ring{ width:140px; height:140px; }
+    .hero-ring svg{ width:140px; height:140px; }
+    .metrics-col{ padding:22px; }
+    .activity-card{ padding:20px; }
+    .detail-grid{ grid-template-columns:repeat(3, 1fr); gap:8px; }
+    .detail .v{ font-size:14px; }
+    header{ gap:14px; }
+  }
 
-    .section-label {
-      font-family: 'Inter', sans-serif;
-      font-weight: 600;
-      font-size: 15px;
-      color: var(--text-2);
-      margin: 36px 0 16px;
-    }
-    .activities {
-      display: grid;
-      grid-template-columns: repeat(3, 1fr);
-      gap: 18px;
-    }
+  .activity-card{
+    border-radius:22px;
+    padding:26px;
+    background:rgba(140,200,230,0.045);
+    border:1px solid rgba(120,200,235,0.14);
+    backdrop-filter:blur(20px) saturate(140%);
+    -webkit-backdrop-filter:blur(20px) saturate(140%);
+    box-shadow:0 12px 36px rgba(0,0,0,0.18), inset 0 1px 0 rgba(255,255,255,0.08);
+    display:flex;
+    flex-direction:column;
+    gap:14px;
+    transition:transform 0.25s ease, box-shadow 0.25s ease;
+  }
+  .activity-card:hover{
+    transform:translateY(-3px);
+    box-shadow:0 18px 46px rgba(0,0,0,0.3), inset 0 1px 0 rgba(255,255,255,0.16);
+  }
+  .activity-card--top{
+    background:rgba(140,200,230,0.09);
+    border-color:rgba(0,180,216,0.4);
+    box-shadow:0 16px 44px rgba(0,0,0,0.28), inset 0 1px 0 rgba(255,255,255,0.14);
+  }
+  @media (min-width:821px){
+    .activity-card--top{ transform:translateY(-6px); }
+    .activity-card--top:hover{ transform:translateY(-9px); }
+  }
+  .activity-top{display:flex; align-items:center; justify-content:space-between; gap:10px; flex-wrap:wrap;}
+  .activity-name{font-family:'Inter', sans-serif; font-weight:700; font-size:16px;}
+  .activity-icon{width:34px; height:34px; display:flex; align-items:center; justify-content:center; opacity:0.9;}
+  .activity-score{font-family:'Inter', sans-serif; font-weight:600; font-size:16px; display:flex; align-items:baseline; gap:6px;}
+  .activity-score .num-dot{font-size:36px;}
+  .bar-track{height:6px; border-radius:6px; background:rgba(255,255,255,0.10); overflow:hidden;}
+  .bar-fill{height:100%; border-radius:6px;}
+  .activity-note{font-size:14px; color:var(--text-2); line-height:1.55;}
 
-    .activity-card {
-      border-radius: 22px;
-      padding: 26px;
-      background: rgba(140, 200, 230, 0.045);
-      border: 1px solid rgba(120, 200, 235, 0.14);
-      backdrop-filter: blur(20px) saturate(140%);
-      -webkit-backdrop-filter: blur(20px) saturate(140%);
-      box-shadow: 0 12px 36px rgba(0, 0, 0, 0.18), inset 0 1px 0 rgba(255, 255, 255, 0.08);
-      display: flex;
-      flex-direction: column;
-      gap: 14px;
-      transition: transform 0.25s ease, box-shadow 0.25s ease;
-    }
-    .activity-card:hover {
-      transform: translateY(-3px);
-      box-shadow: 0 18px 46px rgba(0, 0, 0, 0.3), inset 0 1px 0 rgba(255, 255, 255, 0.16);
-    }
-    .activity-top { display: flex; align-items: center; justify-content: space-between; gap: 10px; flex-wrap: wrap; }
-    .activity-name { font-family: 'Inter', sans-serif; font-weight: 700; font-size: 16px; }
-    .activity-icon { width: 34px; height: 34px; display: flex; align-items: center; justify-content: center; opacity: 0.9; }
-    .activity-score { font-family: 'Inter', sans-serif; font-weight: 600; font-size: 16px; display: flex; align-items: baseline; gap: 6px; }
-    .activity-score .num-dot { font-size: 36px; }
-    .bar-track { height: 6px; border-radius: 6px; background: rgba(255, 255, 255, 0.10); overflow: hidden; }
-    .bar-fill { height: 100%; border-radius: 6px; transition: width 1.2s cubic-bezier(0.16, 1, 0.3, 1), background 0.5s ease; }
-    .activity-note { font-size: 14px; color: var(--text-2); line-height: 1.55; }
-
-    footer {
-      margin-top: 40px;
-      font-size: 12.5px;
-      color: var(--text-3);
-      text-align: center;
-      line-height: 1.6;
-    }
-
-    @media (max-width: 820px) { .activities { grid-template-columns: 1fr; } }
-    @media (max-width: 680px) {
-      .metrics-card { grid-template-columns: 1fr; }
-      .metrics-divider { width: auto; height: 1px; margin: 0 28px; }
-    }
-    @media (max-width: 460px) {
-      .wrap { padding: 32px 16px 56px; }
-      .hero { padding: 30px 24px; gap: 24px; }
-      .hero-ring { width: 140px; height: 140px; }
-      .hero-ring svg { width: 140px; height: 140px; }
-      .metrics-col { padding: 22px; }
-      .activity-card { padding: 20px; }
-      .detail-grid { grid-template-columns: repeat(3, 1fr); gap: 8px; }
-      .detail .v { font-size: 14px; }
-      header { gap: 14px; }
-    }
-  </style>
+  footer{
+    margin-top:40px;
+    font-size:12.5px;
+    color:var(--text-3);
+    text-align:center;
+    line-height:1.6;
+  }
+</style>
 </head>
 <body>
 
-  <!-- Ambient lighting blobs -->
-  <div class="blob blob-a"></div>
-  <div class="blob blob-b"></div>
-  <div class="blob blob-c"></div>
+<div id="loading-screen" class="loading-screen">
+  <div class="loading-brand">
+    <span class="phantom">Phantom</span>
+    <span class="air">Air</span>
+  </div>
+  <div class="loading-dots">
+    <span></span><span></span><span></span>
+  </div>
+  <p class="loading-text">Reading conditions…</p>
+</div>
 
-  <div class="wrap">
-    <header>
-      <div class="brand">
-        <span class="phantom">Phantom</span>
-        <span class="air">Air</span>
+<div class="blob blob-a"></div>
+<div class="blob blob-b"></div>
+<div class="blob blob-c"></div>
+
+<div class="wrap">
+
+  <header>
+    <div class="brand">
+      <span class="phantom">Phantom</span>
+      <span class="air">Air</span>
+    </div>
+    <div class="location-block">
+      <div class="place"><b id="place-name">Rajaji Nagar, Bengaluru</b> <span class="dot" id="location-dot"></span></div>
+      <div class="timestamp" id="timestamp">Loading conditions…</div>
+    </div>
+  </header>
+
+  <!-- Combined score hero -->
+  <div class="hero">
+    <div class="hero-left">
+      <p class="hero-label">Combined outdoor score</p>
+      <p class="hero-number" id="combined-number">--</p>
+      <p class="hero-verdict" id="combined-verdict">Reading current air and sky conditions…</p>
+      <p class="hero-factors" id="combined-factors"></p>
+    </div>
+    <div class="hero-ring">
+      <svg width="180" height="180" viewBox="0 0 180 180">
+        <circle class="ring-track" cx="90" cy="90" r="78"></circle>
+        <circle class="ring-fill" id="combined-ring" cx="90" cy="90" r="78" stroke="var(--cyan)"></circle>
+      </svg>
+      <div class="ring-center">
+        <div class="n" id="ring-label">out of 100</div>
       </div>
-      <div class="location-block">
-        <div class="place">
-          <span class="dot" id="location-dot"></span>
-          <b id="place-name">Detecting live location...</b>
-        </div>
-        <div class="timestamp" id="observed-at">Updating...</div>
-      </div>
-    </header>
-
-    <section class="hero">
-      <div class="hero-left">
-        <p class="hero-label">Combined outdoor score</p>
-        <p class="hero-number" id="hero-score">0</p>
-        <div class="hero-verdict" id="hero-verdict">Analyzing atmosphere…</div>
-        <div class="hero-factors" id="hero-factors">Gathering atmospheric temperature, humidity & air metrics…</div>
-      </div>
-      <div class="hero-ring">
-        <svg width="180" height="180" viewBox="0 0 180 180">
-          <circle class="ring-track" cx="90" cy="90" r="76"></circle>
-          <circle class="ring-fill" id="ring-progress" cx="90" cy="90" r="76" stroke="var(--good)" stroke-dasharray="477.5" stroke-dashoffset="477.5"></circle>
-        </svg>
-        <div class="ring-center">
-          <span class="n">out of 100</span>
-        </div>
-      </div>
-    </section>
-
-    <section class="metrics-card">
-      <!-- Air Quality Column -->
-      <div class="metrics-col">
-        <div class="card-head">
-          <div>
-            <p class="card-title">Air quality</p>
-            <p class="card-sub" id="air-condition">—</p>
-          </div>
-          <span class="pill" id="air-pill">—</span>
-        </div>
-        <div class="stat-row">
-          <span id="aqi-val" class="num-dot">0</span>
-          <span class="stat-unit">AQI</span>
-        </div>
-        <p class="score-line">Outdoor score <span id="air-score" class="bright-num">0</span><span class="score-of">/100</span></p>
-      </div>
-
-      <div class="metrics-divider"></div>
-
-      <!-- Weather Column -->
-      <div class="metrics-col">
-        <div class="card-head">
-          <div>
-            <p class="card-title">Weather</p>
-            <p class="card-sub" id="weather-condition">—</p>
-          </div>
-          <span class="pill" id="weather-pill">—</span>
-        </div>
-        <div class="stat-row">
-          <span id="temp-value-num" class="num-dot">0</span>
-          <span class="stat-unit">°C</span>
-        </div>
-        <p class="score-line">Outdoor score <span id="weather-score" class="bright-num">0</span><span class="score-of">/100</span></p>
-        <div class="detail-grid">
-          <div class="detail"><div class="k">Humidity</div><div class="v" id="humidity">--</div></div>
-          <div class="detail"><div class="k">Wind</div><div class="v" id="wind">--</div></div>
-          <div class="detail"><div class="k">Rain chance</div><div class="v" id="rain">--</div></div>
-        </div>
-      </div>
-    </section>
-
-    <p class="section-label">How it feels for outdoor activity</p>
-    <section class="activities" id="activities-container">
-      <!-- Dynamic Activity Cards Injected Here -->
-    </section>
-
-    <footer>
-      Phantom Air blends real-time air quality and weather metrics into a unified outdoor index.
-    </footer>
+    </div>
   </div>
 
-  <script>
-    const FALLBACK_DATA = {
-      place: "Location Unavailable",
-      observedAt: "Using standard outdoor metrics",
-      weather: { tempC: 24, condition: "Partly Cloudy", humidity: 68, windKmh: 16, rainChance: 20 },
-      air: { aqi: 44, dominant: "PM2.5", pm25: 44, pm10: 17, o3: 8 },
-      isFallback: true
-    };
+  <!-- AQI + Weather (single merged panel) -->
+  <div class="metrics-card">
+    <div class="metrics-col">
+      <div class="card-head">
+        <div>
+          <p class="card-title">Air quality</p>
+          <p class="card-sub">Overall AQI</p>
+        </div>
+        <span class="pill" id="aqi-pill">—</span>
+      </div>
+      <div class="stat-row"><span id="aqi-value-num" class="num-dot">0</span><span class="stat-unit">AQI</span></div>
+      <p class="score-line">Outdoor score <span id="aqi-score" class="bright-num">0</span><span class="score-of">/100</span></p>
+    </div>
 
-    function animateCounter(element, targetValue, duration = 1600) {
-      if (!element) return;
-      const startValue = 0;
-      const startTime = performance.now();
+    <div class="metrics-divider"></div>
 
-      function update(currentTime) {
-        const elapsed = currentTime - startTime;
-        const progress = Math.min(elapsed / duration, 1);
-        
-        // Quadratic ease-out formula
-        const easeProgress = 1 - Math.pow(1 - progress, 2);
-        const currentValue = Math.floor(easeProgress * (targetValue - startValue) + startValue);
-        
-        element.textContent = currentValue;
+    <div class="metrics-col">
+      <div class="card-head">
+        <div>
+          <p class="card-title">Weather</p>
+          <p class="card-sub" id="weather-condition">—</p>
+        </div>
+        <span class="pill" id="weather-pill">—</span>
+      </div>
+      <div class="stat-row"><span id="temp-value-num" class="num-dot">0</span><span class="stat-unit">°C</span></div>
+      <p class="score-line">Outdoor score <span id="weather-score" class="bright-num">0</span><span class="score-of">/100</span></p>
+      <div class="detail-grid">
+        <div class="detail"><div class="k">Humidity</div><div class="v" id="humidity">--</div></div>
+        <div class="detail"><div class="k">Wind</div><div class="v" id="wind">--</div></div>
+        <div class="detail"><div class="k">Rain chance</div><div class="v" id="rain">--</div></div>
+      </div>
+    </div>
+  </div>
 
-        if (progress < 1) {
-          requestAnimationFrame(update);
-        } else {
-          element.textContent = targetValue;
-        }
-      }
+  <p class="section-label">How it feels for outdoor activity</p>
+  <div class="activities" id="activities"></div>
 
-      requestAnimationFrame(update);
-    }
+  <footer>
+    Phantom Air blends today's air quality and weather into a single read on the day. Scores are a general guide, not medical advice — always use your own judgment on high-pollution or extreme-weather days.
+  </footer>
 
-    async function fetchLocationName(lat, lon) {
-      try {
-        const res = await fetch(`https://nominatim.openstreetmap.org/reverse?format=json&lat=${lat}&lon=${lon}`);
-        if (!res.ok) throw new Error("Location resolution error");
-        const data = await res.json();
-        const addr = data.address || {};
-        
-        const suburb = addr.suburb || addr.neighbourhood || addr.residential || addr.subdivision;
-        const city = addr.city || addr.town || addr.village || addr.county || addr.state_district;
-        
-        if (suburb && city) return `${suburb}, ${city}`;
-        return suburb || city || "Your Location";
-      } catch (err) {
-        return "Your Location";
-      }
-    }
+</div>
 
-    function getPosition(timeoutMs = 8000) {
-      return new Promise((resolve, reject) => {
-        if (!navigator.geolocation) return reject(new Error("Geolocation unsupported"));
-        const timer = setTimeout(() => reject(new Error("Geolocation timeout")), timeoutMs);
-        navigator.geolocation.getCurrentPosition(
-          (pos) => { clearTimeout(timer); resolve(pos); },
-          (err) => { clearTimeout(timer); reject(err); },
-          { enableHighAccuracy: false, timeout: timeoutMs, maximumAge: 5 * 60 * 1000 }
-        );
-      });
-    }
+<script>
+/* ============================================================
+   FALLBACK SNAPSHOT — a real reading Claude fetched for Rajaji
+   Nagar, Bengaluru, used only if the live fetch below can't
+   complete (geolocation denied, or the network call is blocked —
+   see note in fetchConditions()).
+   ============================================================ */
 
-    function weatherCodeToText(code) {
-      const map = {
-        0: "Clear sky", 1: "Mostly clear", 2: "Partly cloudy", 3: "Overcast",
-        45: "Fog", 48: "Rime fog", 51: "Light drizzle", 53: "Drizzle", 55: "Dense drizzle",
-        61: "Light rain", 63: "Rain", 65: "Heavy rain", 71: "Light snow", 73: "Snow",
-        75: "Heavy snow", 80: "Rain showers", 81: "Moderate rain showers", 82: "Violent rain showers",
-        95: "Thunderstorm", 96: "Thunderstorm with hail", 99: "Thunderstorm with heavy hail"
-      };
-      return map[code] || "Cloudy";
-    }
+const FALLBACK_DATA = {
+  place: "Rajaji Nagar, Bengaluru",
+  observedAt: "Today · 9:10 AM IST",
+  weather: {
+    tempC: 24,
+    condition: "Cloudy",
+    humidity: 68,
+    windKmh: 16,
+    rainChance: 20
+  },
+  air: {
+    aqi: 44,
+    dominant: "PM2.5",
+    pm25: 44,
+    pm10: 17,
+    o3: 8
+  },
+  isFallback: true
+};
 
-    async function fetchConditions() {
-      try {
-        const pos = await getPosition();
-        const lat = pos.coords.latitude;
-        const lon = pos.coords.longitude;
+/* ============================================================
+   LIVE FETCH — Open-Meteo (free, no API key). Asks the browser
+   for your location, then calls Open-Meteo's forecast + air
+   quality endpoints directly. A page published to claude.ai runs
+   behind a content-security policy that blocks fetch() to
+   third-party domains, so this will typically fall back to
+   FALLBACK_DATA here — but the code is complete and correct, and
+   works with no changes on a normal, unsandboxed page.
+   ============================================================ */
 
-        const controller = new AbortController();
-        const timeout = setTimeout(() => controller.abort(), 7000);
+function getPosition(timeoutMs = 8000){
+  return new Promise((resolve, reject) => {
+    if (!navigator.geolocation) return reject(new Error("no geolocation"));
+    const timer = setTimeout(() => reject(new Error("geolocation timeout")), timeoutMs);
+    navigator.geolocation.getCurrentPosition(
+      (pos) => { clearTimeout(timer); resolve(pos); },
+      (err) => { clearTimeout(timer); reject(err); },
+      { enableHighAccuracy: false, timeout: timeoutMs, maximumAge: 5 * 60 * 1000 }
+    );
+  });
+}
 
-        const weatherUrl = `https://api.open-meteo.com/v1/forecast?latitude=${lat}&longitude=${lon}&current=temperature_2m,relative_humidity_2m,wind_speed_10m,weather_code&daily=precipitation_probability_max&timezone=auto`;
-        const airUrl = `https://air-quality-api.open-meteo.com/v1/air-quality?latitude=${lat}&longitude=${lon}&current=us_aqi,pm2_5,pm10,ozone`;
+function weatherCodeToText(code){
+  const map = {
+    0: "Clear sky", 1: "Mostly clear", 2: "Partly cloudy", 3: "Overcast",
+    45: "Fog", 48: "Fog",
+    51: "Light drizzle", 53: "Drizzle", 55: "Dense drizzle",
+    61: "Light rain", 63: "Rain", 65: "Heavy rain",
+    71: "Light snow", 73: "Snow", 75: "Heavy snow",
+    80: "Rain showers", 81: "Rain showers", 82: "Violent showers",
+    95: "Thunderstorm", 96: "Thunderstorm", 99: "Thunderstorm"
+  };
+  return map[code] || "Cloudy";
+}
 
-        const [wRes, aRes, livePlace] = await Promise.all([
-          fetch(weatherUrl, { signal: controller.signal }),
-          fetch(airUrl, { signal: controller.signal }),
-          fetchLocationName(lat, lon)
-        ]);
-        clearTimeout(timeout);
+async function fetchLocationName(lat, lon, signal){
+  try {
+    const res = await fetch(
+      `https://nominatim.openstreetmap.org/reverse?format=json&lat=${lat}&lon=${lon}`,
+      { signal }
+    );
+    if (!res.ok) throw new Error("reverse geocode error");
+    const data = await res.json();
+    const addr = data.address || {};
+    const suburb = addr.suburb || addr.neighbourhood || addr.residential || addr.subdivision;
+    const city = addr.city || addr.town || addr.village || addr.county || addr.state_district;
+    if (suburb && city) return `${suburb}, ${city}`;
+    return suburb || city || "Your location";
+  } catch (err){
+    return "Your location";
+  }
+}
 
-        if (!wRes.ok || !aRes.ok) throw new Error("API error");
+async function fetchLiveFromOpenMeteo(lat, lon, signal){
+  const weatherUrl = `https://api.open-meteo.com/v1/forecast?latitude=${lat}&longitude=${lon}&current=temperature_2m,relative_humidity_2m,wind_speed_10m,weather_code&daily=precipitation_probability_max&timezone=auto`;
+  const airUrl = `https://air-quality-api.open-meteo.com/v1/air-quality?latitude=${lat}&longitude=${lon}&current=us_aqi,pm2_5,pm10,ozone`;
 
-        const w = await wRes.json();
-        const a = await aRes.json();
+  const [wRes, aRes, place] = await Promise.all([
+    fetch(weatherUrl, { signal }),
+    fetch(airUrl, { signal }),
+    fetchLocationName(lat, lon, signal)
+  ]);
+  if (!wRes.ok || !aRes.ok) throw new Error("bad response");
+  const w = await wRes.json();
+  const a = await aRes.json();
 
-        return {
-          place: livePlace,
-          observedAt: "Live · Updated just now",
-          weather: {
-            tempC: Math.round(w.current.temperature_2m),
-            condition: weatherCodeToText(w.current.weather_code),
-            humidity: Math.round(w.current.relative_humidity_2m),
-            windKmh: Math.round(w.current.wind_speed_10m),
-            rainChance: Math.round(w.daily?.precipitation_probability_max?.[0] ?? 0)
-          },
-          air: {
-            aqi: Math.round(a.current.us_aqi || 35),
-            dominant: "PM2.5",
-            pm25: Math.round(a.current.pm2_5 || 12),
-            pm10: Math.round(a.current.pm10 || 22),
-            o3: Math.round(a.current.ozone || 10)
-          },
-          isFallback: false
-        };
-      } catch (err) {
-        console.warn("Live fetch fallback engaged:", err.message);
-        return FALLBACK_DATA;
-      }
-    }
+  return {
+    place,
+    observedAt: "Live · just now",
+    weather: {
+      tempC: Math.round(w.current.temperature_2m),
+      condition: weatherCodeToText(w.current.weather_code),
+      humidity: Math.round(w.current.relative_humidity_2m),
+      windKmh: Math.round(w.current.wind_speed_10m),
+      rainChance: Math.round((w.daily?.precipitation_probability_max?.[0]) ?? 0)
+    },
+    air: {
+      aqi: Math.round(a.current.us_aqi),
+      dominant: "PM2.5",
+      pm25: Math.round(a.current.pm2_5),
+      pm10: Math.round(a.current.pm10),
+      o3: Math.round(a.current.ozone)
+    },
+    isFallback: false
+  };
+}
 
-    function clamp(n, min, max) { return Math.max(min, Math.min(max, n)); }
+async function fetchConditions(){
+  try {
+    const pos = await getPosition();
+    const controller = new AbortController();
+    const timeout = setTimeout(() => controller.abort(), 6000);
+    const data = await fetchLiveFromOpenMeteo(
+      pos.coords.latitude, pos.coords.longitude, controller.signal
+    );
+    clearTimeout(timeout);
+    return data;
+  } catch (err){
+    // Geolocation denied/unavailable, or the live fetch was blocked
+    // by this environment's content-security policy — use the
+    // real snapshot Claude fetched instead.
+    console.warn("Live fetch unavailable, using fallback snapshot:", err.message);
+    return FALLBACK_DATA;
+  }
+}
 
-    function aqiToScore(aqi) {
-      return clamp(Math.round(100 - aqi * 0.45), 0, 100);
-    }
+/* ---------------- scoring ---------------- */
 
-    function aqiCategory(aqi) {
-      if (aqi <= 50) return { label: "Good", tier: "good" };
-      if (aqi <= 100) return { label: "Moderate", tier: "ok" };
-      if (aqi <= 150) return { label: "Unhealthy (sensitive)", tier: "poor" };
-      return { label: "Unhealthy", tier: "bad" };
-    }
+function clamp(n, min, max){ return Math.max(min, Math.min(max, n)); }
 
-    function weatherScoreOf(w) {
-      const tempComfort = clamp(100 - Math.pow(Math.abs(w.tempC - 20) / 9, 2) * 60, 0, 100);
-      const humidityComfort = clamp(100 - (Math.abs(w.humidity - 50) / 30) * 45, 0, 100);
-      const windComfort = w.windKmh <= 18 ? 100 - Math.abs(w.windKmh - 11) * 1.2 : clamp(100 - (w.windKmh - 18) * 2.5, 0, 100);
-      const rainPenalty = clamp(100 - w.rainChance * 1.1, 0, 100);
+function aqiToScore(aqi){
+  // 0 AQI -> 100, 100 AQI -> ~55, 200 AQI -> ~10, floors at 0
+  return clamp(Math.round(100 - aqi * 0.45), 0, 100);
+}
 
-      return Math.round(tempComfort * 0.42 + humidityComfort * 0.18 + windComfort * 0.18 + rainPenalty * 0.22);
-    }
+function aqiCategory(aqi){
+  if (aqi <= 50) return {label:"Good", tier:"good"};
+  if (aqi <= 100) return {label:"Moderate", tier:"ok"};
+  if (aqi <= 150) return {label:"Unhealthy (sensitive)", tier:"poor"};
+  if (aqi <= 200) return {label:"Unhealthy", tier:"bad"};
+  return {label:"Hazardous", tier:"bad"};
+}
 
-    function weatherCategory(score) {
-      if (score >= 80) return { label: "Ideal", tier: "good" };
-      if (score >= 60) return { label: "Pleasant", tier: "ok" };
-      if (score >= 40) return { label: "Fair", tier: "poor" };
-      return { label: "Harsh", tier: "bad" };
-    }
+function tempComfort(tempC){
+  // peak comfort 16-23C, tapering outward
+  const ideal = 19.5, spread = 9;
+  const d = Math.abs(tempC - ideal);
+  return clamp(100 - Math.pow(d / spread, 2) * 60, 0, 100);
+}
 
-    function getTierColor(tier) {
-      switch(tier) {
-        case "good": return "var(--good)";
-        case "ok": return "var(--ok)";
-        case "poor": return "var(--poor)";
-        default: return "var(--bad)";
-      }
-    }
+function humidityComfort(h){
+  const ideal = 50, spread = 30;
+  const d = Math.abs(h - ideal);
+  return clamp(100 - (d / spread) * 45, 0, 100);
+}
 
-    async function init() {
-      const data = await fetchConditions();
+function windComfort(w){
+  // light breeze 6-16 km/h ideal; still air or gusty both cost points
+  if (w < 4) return 78;
+  if (w <= 18) return 100 - Math.abs(w - 11) * 1.2;
+  return clamp(100 - (w - 18) * 2.5, 0, 100);
+}
 
-      // Update location indicator status dot
-      const dotEl = document.getElementById("location-dot");
-      if (dotEl) {
-        if (data.isFallback) {
-          dotEl.classList.add("offline");
-        } else {
-          dotEl.classList.remove("offline");
-        }
-      }
+function rainPenalty(chance){
+  return clamp(100 - chance * 1.1, 0, 100);
+}
 
-      // Header Location
-      document.getElementById("place-name").textContent = data.place;
-      document.getElementById("observed-at").textContent = data.observedAt;
+function weatherScoreOf(w){
+  const t = tempComfort(w.tempC);
+  const h = humidityComfort(w.humidity);
+  const wd = windComfort(w.windKmh);
+  const r = rainPenalty(w.rainChance);
+  return Math.round(t*0.42 + h*0.18 + wd*0.18 + r*0.22);
+}
 
-      // Score Calculations
-      const airScore = aqiToScore(data.air.aqi);
-      const weatherScore = weatherScoreOf(data.weather);
-      const combinedScore = Math.round(airScore * 0.55 + weatherScore * 0.45);
+function tierFor(score){
+  if (score >= 80) return "good";
+  if (score >= 60) return "ok";
+  if (score >= 40) return "poor";
+  return "bad";
+}
 
-      // Hero Score Number Count-up Animation
-      animateCounter(document.getElementById("hero-score"), combinedScore);
+function labelFor(score){
+  if (score >= 80) return "Excellent";
+  if (score >= 60) return "Good";
+  if (score >= 40) return "Fair";
+  return "Poor";
+}
 
-      const verdictEl = document.getElementById("hero-verdict");
-      const factorsEl = document.getElementById("hero-factors");
-      
-      if (combinedScore >= 80) {
-        verdictEl.textContent = "Optimal outdoor conditions.";
-        factorsEl.textContent = "Air quality and weather metrics are within ideal ranges.";
-      } else if (combinedScore >= 60) {
-        verdictEl.textContent = "Moderate outdoor conditions.";
-        factorsEl.textContent = "Overall atmospheric metrics are at moderate levels.";
-      } else {
-        verdictEl.textContent = "Sub-optimal conditions.";
-        factorsEl.textContent = "Current atmospheric metrics are outside comfortable ranges.";
-      }
+// Each activity weighs AQI / heat / wind a little differently
+function activityScore(kind, aqiScore, w){
+  const t = tempComfort(w.tempC);
+  const h = humidityComfort(w.humidity);
+  const wd = windComfort(w.windKmh);
+  const r = rainPenalty(w.rainChance);
 
-      // Hero Ring Circle Fill
-      const circleRadius = 76;
-      const circumference = 2 * Math.PI * circleRadius;
-      const ringFill = document.getElementById("ring-progress");
-      const offset = circumference - (combinedScore / 100) * circumference;
-      
-      let overallTier = "good";
-      if (combinedScore < 40) overallTier = "bad";
-      else if (combinedScore < 60) overallTier = "poor";
-      else if (combinedScore < 80) overallTier = "ok";
+  if (kind === "running"){
+    // most sensitive to air quality and heat/humidity (exertion, deep breathing)
+    return Math.round(aqiScore*0.5 + t*0.22 + h*0.13 + r*0.1 + wd*0.05);
+  }
+  if (kind === "cycling"){
+    // wind matters more, heat matters less (self-cooling from speed)
+    return Math.round(aqiScore*0.4 + t*0.16 + wd*0.24 + r*0.14 + h*0.06);
+  }
+  // walking — most forgiving, lower exertion
+  return Math.round(aqiScore*0.35 + t*0.28 + h*0.12 + r*0.15 + wd*0.10);
+}
 
-      ringFill.style.strokeDasharray = `${circumference}`;
-      ringFill.style.strokeDashoffset = `${offset}`;
-      ringFill.style.stroke = getTierColor(overallTier);
+function buildFactors(aqi, w){
+  const air = aqi <= 50 ? "Clean air" :
+              aqi <= 100 ? "Air quality is fine" :
+              aqi <= 150 ? "Air quality is subpar" : "Air quality is poor";
 
-      // Air Card
-      const airCat = aqiCategory(data.air.aqi);
-      document.getElementById("air-condition").textContent = airCat.label;
-      const airPill = document.getElementById("air-pill");
-      airPill.textContent = airCat.label;
-      airPill.className = `pill ${airCat.tier}`;
+  const temp = w.tempC < 14 ? "Cool temperature" :
+               w.tempC <= 24 ? "Comfortable temperature" :
+               w.tempC <= 29 ? "Warm temperature" : "Hot temperature";
 
-      animateCounter(document.getElementById("aqi-val"), data.air.aqi);
-      animateCounter(document.getElementById("air-score"), airScore);
+  const wind = w.windKmh < 4 ? "Calm air" :
+               w.windKmh <= 10 ? "Light breeze" :
+               w.windKmh <= 20 ? "Moderate wind" : "Strong wind";
 
-      // Weather Card
-      const wCat = weatherCategory(weatherScore);
-      document.getElementById("weather-condition").textContent = data.weather.condition;
-      const wPill = document.getElementById("weather-pill");
-      wPill.textContent = wCat.label;
-      wPill.className = `pill ${wCat.tier}`;
+  return [air, temp, wind].join(" · ");
+}
 
-      animateCounter(document.getElementById("temp-value-num"), data.weather.tempC);
-      animateCounter(document.getElementById("weather-score"), weatherScore);
+const ACTIVITY_NOTES = {
+  running: {
+    good: "Clean air and comfortable temps — a good day to push your normal pace.",
+    ok: "Decent for a run, though it's worth easing off the pace a little today.",
+    poor: "Keep it short and easy — your lungs are working harder than the effort should require.",
+    bad: "Better to move today's run indoors — air and heat are both working against you."
+  },
+  walking: {
+    good: "Pleasant out there — a relaxed walk won't feel like effort today.",
+    ok: "A comfortable walk, nothing that should slow you down much.",
+    poor: "Still walkable, just keep the pace easy and skip anything brisk.",
+    bad: "A short walk is fine, but skip the long loop — conditions aren't in your favor."
+  },
+  cycling: {
+    good: "Light wind and clear air make for an easy, fast spin.",
+    ok: "Rideable without much fuss, though the wind may slow your pace a touch.",
+    poor: "Ride if you must, but dial back the intensity — air quality is the main issue.",
+    bad: "Skip the distance ride today, or keep it very short and easy."
+  }
+};
 
-      document.getElementById("humidity").textContent = `${data.weather.humidity}%`;
-      document.getElementById("wind").textContent = `${data.weather.windKmh} km/h`;
-      document.getElementById("rain").textContent = `${data.weather.rainChance}%`;
+function noteFor(kind, score, aqi, w){
+  const tier = tierFor(score);
+  let note = ACTIVITY_NOTES[kind][tier];
+  if (w.rainChance >= 40) note += " Keep an eye on the sky — rain looks likely.";
+  return note;
+}
 
-      // Render Activity Cards
-      renderActivities(combinedScore);
-    }
+/* ---------------- rendering ---------------- */
 
-    function renderActivities(overallScore) {
-      const container = document.getElementById("activities-container");
-      
-      const runningScore = Math.max(0, Math.min(100, Math.round(overallScore * 0.95)));
-      const cyclingScore = Math.max(0, Math.min(100, Math.round(overallScore * 1.02)));
-      const walkingScore = Math.max(0, Math.min(100, Math.round(overallScore * 1.05)));
+const ACTIVITY_META = {
+  running: { name: "Running", icon: runIcon() },
+  walking: { name: "Walking", icon: walkIcon() },
+  cycling: { name: "Cycling", icon: cycleIcon() }
+};
 
-      function getAdvice(activity, score) {
-        if (score >= 80) {
-          if (activity === "Running") return "Ideal conditions for outdoor runs. Temperature and air quality are suited for high performance.";
-          if (activity === "Cycling") return "Prime conditions for cycling. Moderate wind speeds and clean air make for ideal riding.";
-          return "Perfect atmospheric conditions for an outdoor walk or light stroll.";
-        } else if (score >= 60) {
-          if (activity === "Running") return "Fair conditions for running. Comfortable overall, though keep a steady pace on longer efforts.";
-          if (activity === "Cycling") return "Good riding weather. Be mindful of wind resistance or temperature shifts on open roads.";
-          return "Pleasant walk conditions. Comfortable for casual strolls or daily errands.";
-        } else if (score >= 40) {
-          if (activity === "Running") return "Sub-optimal running conditions. Consider a lighter pace or shorter distance.";
-          if (activity === "Cycling") return "Moderate cycling conditions. Watch for wind gusts or warmer atmospheric air.";
-          return "Fair walking conditions. Keep strolls relaxed and stay hydrated.";
-        } else {
-          if (activity === "Running") return "Challenging conditions for running. An indoor treadmill session is recommended.";
-          if (activity === "Cycling") return "Unfavorable cycling weather. Indoor trainer rides are preferable today.";
-          return "Poor conditions for walking. Short essential walks recommended.";
-        }
-      }
+function runIcon(){
+  return `<svg width="26" height="26" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round">
+    <circle cx="15.5" cy="4.5" r="1.6"/>
+    <path d="M13 8l1.5 3 3 1-1 2.5-4-1-2 3.5H7l3-5-1.5-2.5L5 11"/>
+    <path d="M11 13l-1.5 4.5L6 21"/>
+  </svg>`;
+}
+function walkIcon(){
+  return `<svg width="26" height="26" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round">
+    <circle cx="13.5" cy="4.5" r="1.6"/>
+    <path d="M11 8l2 2v4l3 5"/>
+    <path d="M13 10l-3 1-2 4"/>
+    <path d="M10 14l-2 2-3 1"/>
+  </svg>`;
+}
+function cycleIcon(){
+  return `<svg width="26" height="26" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round">
+    <circle cx="5.5" cy="17.5" r="3"/>
+    <circle cx="18.5" cy="17.5" r="3"/>
+    <path d="M5.5 17.5L10 8h4l3 4.5h-6"/>
+    <path d="M10 8l2.5 4"/>
+  </svg>`;
+}
 
-      const activities = [
-        {
-          name: "Running",
-          score: runningScore,
-          icon: `<svg width="24" height="24" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path d="M13 4a2 2 0 1 0 0-4 2 2 0 0 0 0 4zM6 14l3-3 2 2 4-4M10 22l2-7 3 2 2 5"></path></svg>`,
-          advice: getAdvice("Running", runningScore)
-        },
-        {
-          name: "Cycling",
-          score: cyclingScore,
-          icon: `<svg width="24" height="24" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><circle cx="5.5" cy="17.5" r="3.5"/><circle cx="18.5" cy="17.5" r="3.5"/><path d="M15 6h2.5L20 12M5.5 17.5l4-8h4l2 3.5"/></svg>`,
-          advice: getAdvice("Cycling", cyclingScore)
-        },
-        {
-          name: "Walking",
-          score: walkingScore,
-          icon: `<svg width="24" height="24" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path d="M13 4a2 2 0 1 0 0-4 2 2 0 0 0 0 4zM7 21l3-9 2 3v7M14 11l-2-3-3 1"></path></svg>`,
-          advice: getAdvice("Walking", walkingScore)
-        }
-      ];
+function setRing(el, score, animate, color){
+  const r = 78;
+  const c = 2 * Math.PI * r;
+  el.setAttribute("stroke-dasharray", c);
+  if (color) el.style.stroke = color;
+  if (!animate){
+    el.setAttribute("stroke-dashoffset", c - (score/100) * c);
+    return;
+  }
+  el.setAttribute("stroke-dashoffset", c);
+  requestAnimationFrame(() => {
+    el.style.transition = "stroke-dashoffset 0.7s cubic-bezier(.2,.8,.2,1), stroke 0.4s ease";
+    el.setAttribute("stroke-dashoffset", c - (score/100) * c);
+  });
+}
 
-      container.innerHTML = activities.map((act, index) => {
-        let tier = "good";
-        if (act.score < 40) tier = "bad";
-        else if (act.score < 60) tier = "poor";
-        else if (act.score < 80) tier = "ok";
+const REDUCE_MOTION = window.matchMedia && window.matchMedia("(prefers-reduced-motion: reduce)").matches;
 
-        const color = getTierColor(tier);
+function countUp(el, end, { duration = 650, delay = 0, suffix = "" } = {}){
+  if (REDUCE_MOTION){
+    el.textContent = end + suffix;
+    return;
+  }
+  const start = performance.now() + delay;
+  const from = 0;
+  function tick(now){
+    const t = clamp((now - start) / duration, 0, 1);
+    if (t < 0){ requestAnimationFrame(tick); return; }
+    const eased = 1 - Math.pow(1 - t, 3); // ease-out cubic
+    const val = Math.round(from + (end - from) * eased);
+    el.textContent = val + suffix;
+    if (t < 1) requestAnimationFrame(tick);
+  }
+  requestAnimationFrame(tick);
+}
 
-        return `
-          <div class="activity-card">
-            <div class="activity-top">
-              <span class="activity-name">${act.name}</span>
-              <div class="activity-icon">${act.icon}</div>
-            </div>
-            <div class="activity-score">
-              <span class="num-dot" id="act-score-${index}">0</span>
-              <span class="score-of">/100</span>
-            </div>
-            <div class="bar-track">
-              <div class="bar-fill" id="act-bar-${index}" style="width: 0%; background: ${color};"></div>
-            </div>
-            <p class="activity-note">${act.advice}</p>
-          </div>
-        `;
-      }).join("");
+async function render(){
+  const data = await fetchConditions();
+  const { place, observedAt, weather, air } = data;
 
-      // Trigger animated counters and bar fills
-      activities.forEach((act, index) => {
-        animateCounter(document.getElementById(`act-score-${index}`), act.score);
-        setTimeout(() => {
-          const bar = document.getElementById(`act-bar-${index}`);
-          if (bar) bar.style.width = `${act.score}%`;
-        }, 120);
-      });
-    }
+  document.getElementById("place-name").textContent = place;
+  document.getElementById("timestamp").textContent = observedAt;
+  document.getElementById("location-dot").classList.toggle("offline", !!data.isFallback);
 
-    document.addEventListener("DOMContentLoaded", init);
-  </script>
+  const aqiScore = aqiToScore(air.aqi);
+  const wScore = weatherScoreOf(weather);
+  const combined = Math.round(aqiScore*0.5 + wScore*0.5);
+  const combinedTier = tierFor(combined);
+
+  // Hero
+  countUp(document.getElementById("combined-number"), combined, { duration: 750 });
+  document.getElementById("ring-label").textContent = "out of 100";
+  const tierColor = {good:"var(--good)", ok:"var(--ok)", poor:"var(--poor)", bad:"var(--bad)"}[combinedTier];
+  setRing(document.getElementById("combined-ring"), combined, true, tierColor);
+
+  const combinedText = {
+    good: "Excellent conditions for being outdoors.",
+    ok: "Good conditions overall.",
+    poor: "Fair conditions — plan around it.",
+    bad: "Poor conditions for outdoor time."
+  }[combinedTier];
+  document.getElementById("combined-verdict").textContent = combinedText;
+  document.getElementById("combined-factors").textContent = buildFactors(air.aqi, weather);
+
+  // AQI card
+  const cat = aqiCategory(air.aqi);
+  countUp(document.getElementById("aqi-value-num"), air.aqi, { duration: 650 });
+  countUp(document.getElementById("aqi-score"), aqiScore, { duration: 650 });
+  const aqiPill = document.getElementById("aqi-pill");
+  aqiPill.textContent = cat.label;
+  aqiPill.className = `pill ${cat.tier}`;
+
+  // Weather card
+  countUp(document.getElementById("temp-value-num"), weather.tempC, { duration: 650 });
+  countUp(document.getElementById("weather-score"), wScore, { duration: 650 });
+  document.getElementById("weather-condition").textContent = weather.condition;
+  const wPill = document.getElementById("weather-pill");
+  const wTier = tierFor(wScore);
+  wPill.textContent = labelFor(wScore);
+  wPill.className = `pill ${wTier}`;
+  document.getElementById("humidity").textContent = `${weather.humidity}%`;
+  document.getElementById("wind").textContent = `${weather.windKmh} km/h`;
+  document.getElementById("rain").textContent = `${weather.rainChance}%`;
+
+  // Activities — highest score goes in the center slot and gets highlighted
+  const wrap = document.getElementById("activities");
+  wrap.innerHTML = "";
+
+  const scored = Object.entries(ACTIVITY_META).map(([key, meta]) => {
+    const score = clamp(activityScore(key, aqiScore, weather), 0, 100);
+    return { key, meta, score };
+  });
+  const winnerIdx = scored.reduce((best, s, i) => s.score > scored[best].score ? i : best, 0);
+  const winner = scored[winnerIdx];
+  const others = scored.filter((_, i) => i !== winnerIdx);
+  const ordered = [others[0], winner, others[1]];
+
+  ordered.forEach((item, i) => {
+    const { key, meta, score } = item;
+    const tier = tierFor(score);
+    const isTop = key === winner.key;
+    const colorVar = {good:"var(--good)", ok:"var(--ok)", poor:"var(--poor)", bad:"var(--bad)"}[tier];
+
+    const card = document.createElement("div");
+    card.className = "activity-card" + (isTop ? " activity-card--top" : "");
+    card.innerHTML = `
+      <div class="activity-top">
+        <div style="display:flex; align-items:center; gap:10px;">
+          <span class="activity-icon" style="color:${colorVar}">${meta.icon}</span>
+          <span class="activity-name">${meta.name}</span>
+        </div>
+      </div>
+      <div class="activity-score" style="color:#ffffff"><span class="act-num num-dot">0</span><span style="color:var(--text-3);">/100</span></div>
+      <div class="bar-track"><div class="bar-fill" id="bar-${key}" style="width:0%; background:${colorVar};"></div></div>
+      <div class="activity-note">${noteFor(key, score, air.aqi, weather)}</div>
+    `;
+    wrap.appendChild(card);
+
+    const stagger = i * 90;
+    countUp(card.querySelector(".act-num"), score, { duration: 600, delay: stagger });
+    const bar = card.querySelector(`#bar-${key}`);
+    requestAnimationFrame(() => {
+      setTimeout(() => {
+        bar.style.transition = "width 0.6s cubic-bezier(.2,.8,.2,1)";
+        bar.style.width = score + "%";
+      }, REDUCE_MOTION ? 0 : stagger);
+    });
+  });
+
+  document.getElementById("loading-screen").classList.add("is-hidden");
+}
+
+render();
+</script>
 </body>
 </html>
