@@ -3,7 +3,7 @@
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover">
-  <title>Phantom Air - Live Atmosphere & Air Quality</title>
+  <title>Phantom Air</title>
   
   <!-- Typography -->
   <link rel="preconnect" href="https://fonts.googleapis.com">
@@ -120,7 +120,8 @@
       gap: 8px;
     }
     .place b { color: var(--text-1); font-weight: 600; }
-    .dot { width: 6px; height: 6px; border-radius: 50%; background: var(--good); box-shadow: 0 0 8px var(--good); }
+    .dot { width: 6px; height: 6px; border-radius: 50%; background: var(--good); box-shadow: 0 0 8px var(--good); transition: background 0.3s ease, box-shadow 0.3s ease; }
+    .dot.offline { background: var(--bad); box-shadow: 0 0 8px var(--bad); }
     .timestamp { font-size: 13px; color: var(--text-3); margin-top: 4px; }
 
     .hero {
@@ -347,7 +348,7 @@
       </div>
       <div class="location-block">
         <div class="place">
-          <span class="dot"></span>
+          <span class="dot" id="location-dot"></span>
           <b id="place-name">Detecting live location...</b>
         </div>
         <div class="timestamp" id="observed-at">Updating...</div>
@@ -387,11 +388,6 @@
           <span class="stat-unit">AQI</span>
         </div>
         <p class="score-line">Outdoor score <span id="air-score" class="bright-num">0</span><span class="score-of">/100</span></p>
-        <div class="detail-grid">
-          <div class="detail"><div class="k">PM2.5</div><div class="v" id="pm25">--</div></div>
-          <div class="detail"><div class="k">PM10</div><div class="v" id="pm10">--</div></div>
-          <div class="detail"><div class="k">Ozone</div><div class="v" id="o3">--</div></div>
-        </div>
       </div>
 
       <div class="metrics-divider"></div>
@@ -430,10 +426,11 @@
 
   <script>
     const FALLBACK_DATA = {
-      place: "Your Location",
-      observedAt: "Live · Snapshot",
+      place: "Location Unavailable",
+      observedAt: "Using standard outdoor metrics",
       weather: { tempC: 24, condition: "Partly Cloudy", humidity: 68, windKmh: 16, rainChance: 20 },
-      air: { aqi: 44, dominant: "PM2.5", pm25: 44, pm10: 17, o3: 8 }
+      air: { aqi: 44, dominant: "PM2.5", pm25: 44, pm10: 17, o3: 8 },
+      isFallback: true
     };
 
     function animateCounter(element, targetValue, duration = 1600) {
@@ -541,7 +538,8 @@
             pm25: Math.round(a.current.pm2_5 || 12),
             pm10: Math.round(a.current.pm10 || 22),
             o3: Math.round(a.current.ozone || 10)
-          }
+          },
+          isFallback: false
         };
       } catch (err) {
         console.warn("Live fetch fallback engaged:", err.message);
@@ -590,6 +588,16 @@
     async function init() {
       const data = await fetchConditions();
 
+      // Update location indicator status dot
+      const dotEl = document.getElementById("location-dot");
+      if (dotEl) {
+        if (data.isFallback) {
+          dotEl.classList.add("offline");
+        } else {
+          dotEl.classList.remove("offline");
+        }
+      }
+
       // Header Location
       document.getElementById("place-name").textContent = data.place;
       document.getElementById("observed-at").textContent = data.observedAt;
@@ -606,14 +614,14 @@
       const factorsEl = document.getElementById("hero-factors");
       
       if (combinedScore >= 80) {
-        verdictEl.textContent = "Great conditions for outdoor activities.";
-        factorsEl.textContent = "Fresh air quality and comfortable temperature make it an ideal time to step outside.";
+        verdictEl.textContent = "Optimal outdoor conditions.";
+        factorsEl.textContent = "Air quality and weather metrics are within ideal ranges.";
       } else if (combinedScore >= 60) {
-        verdictEl.textContent = "Fairly good weather and air quality overall.";
-        factorsEl.textContent = "Good conditions overall for most outdoor sports and walks.";
+        verdictEl.textContent = "Moderate outdoor conditions.";
+        factorsEl.textContent = "Overall atmospheric metrics are at moderate levels.";
       } else {
-        verdictEl.textContent = "Sub-optimal outdoor environment right now.";
-        factorsEl.textContent = "Consider shorter outdoor exposures due to atmospheric conditions.";
+        verdictEl.textContent = "Sub-optimal conditions.";
+        factorsEl.textContent = "Current atmospheric metrics are outside comfortable ranges.";
       }
 
       // Hero Ring Circle Fill
@@ -641,10 +649,6 @@
       animateCounter(document.getElementById("aqi-val"), data.air.aqi);
       animateCounter(document.getElementById("air-score"), airScore);
 
-      document.getElementById("pm25").textContent = `${data.air.pm25} µg/m³`;
-      document.getElementById("pm10").textContent = `${data.air.pm10} µg/m³`;
-      document.getElementById("o3").textContent = `${data.air.o3} ppb`;
-
       // Weather Card
       const wCat = weatherCategory(weatherScore);
       document.getElementById("weather-condition").textContent = data.weather.condition;
@@ -670,24 +674,44 @@
       const cyclingScore = Math.max(0, Math.min(100, Math.round(overallScore * 1.02)));
       const walkingScore = Math.max(0, Math.min(100, Math.round(overallScore * 1.05)));
 
+      function getAdvice(activity, score) {
+        if (score >= 80) {
+          if (activity === "Running") return "Ideal conditions for outdoor runs. Temperature and air quality are suited for high performance.";
+          if (activity === "Cycling") return "Prime conditions for cycling. Moderate wind speeds and clean air make for ideal riding.";
+          return "Perfect atmospheric conditions for an outdoor walk or light stroll.";
+        } else if (score >= 60) {
+          if (activity === "Running") return "Fair conditions for running. Comfortable overall, though keep a steady pace on longer efforts.";
+          if (activity === "Cycling") return "Good riding weather. Be mindful of wind resistance or temperature shifts on open roads.";
+          return "Pleasant walk conditions. Comfortable for casual strolls or daily errands.";
+        } else if (score >= 40) {
+          if (activity === "Running") return "Sub-optimal running conditions. Consider a lighter pace or shorter distance.";
+          if (activity === "Cycling") return "Moderate cycling conditions. Watch for wind gusts or warmer atmospheric air.";
+          return "Fair walking conditions. Keep strolls relaxed and stay hydrated.";
+        } else {
+          if (activity === "Running") return "Challenging conditions for running. An indoor treadmill session is recommended.";
+          if (activity === "Cycling") return "Unfavorable cycling weather. Indoor trainer rides are preferable today.";
+          return "Poor conditions for walking. Short essential walks recommended.";
+        }
+      }
+
       const activities = [
         {
-          name: "Running & Cardio",
+          name: "Running",
           score: runningScore,
           icon: `<svg width="24" height="24" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path d="M13 4a2 2 0 1 0 0-4 2 2 0 0 0 0 4zM6 14l3-3 2 2 4-4M10 22l2-7 3 2 2 5"></path></svg>`,
-          note: runningScore >= 75 ? "Optimal atmosphere for intense aerobic exercise." : "Pace yourself; air or heat may increase strain."
+          advice: getAdvice("Running", runningScore)
         },
         {
-          name: "Cycling & Commuting",
+          name: "Cycling",
           score: cyclingScore,
           icon: `<svg width="24" height="24" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><circle cx="5.5" cy="17.5" r="3.5"/><circle cx="18.5" cy="17.5" r="3.5"/><path d="M15 6h2.5L20 12M5.5 17.5l4-8h4l2 3.5"/></svg>`,
-          note: cyclingScore >= 75 ? "Great conditions for outdoor rides and active travel." : "Moderate breeze or air quality may affect long rides."
+          advice: getAdvice("Cycling", cyclingScore)
         },
         {
-          name: "Walking & Leisure",
+          name: "Walking",
           score: walkingScore,
           icon: `<svg width="24" height="24" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path d="M13 4a2 2 0 1 0 0-4 2 2 0 0 0 0 4zM7 21l3-9 2 3v7M14 11l-2-3-3 1"></path></svg>`,
-          note: walkingScore >= 75 ? "Ideal setup for light walks and outdoor relaxation." : "Fair conditions for short leisure outings."
+          advice: getAdvice("Walking", walkingScore)
         }
       ];
 
@@ -712,7 +736,7 @@
             <div class="bar-track">
               <div class="bar-fill" id="act-bar-${index}" style="width: 0%; background: ${color};"></div>
             </div>
-            <p class="activity-note">${act.note}</p>
+            <p class="activity-note">${act.advice}</p>
           </div>
         `;
       }).join("");
