@@ -37,6 +37,8 @@
     --ok:#ffd27a;
     --poor:#ff9a7a;
     --bad:#ff6b6b;
+    --silver:#c4cbd6;
+    --orange:#ff9d4d;
     padding-top:env(safe-area-inset-top,0px);
     padding-bottom:env(safe-area-inset-bottom,0px);
     box-sizing:border-box;
@@ -229,6 +231,12 @@
   .ring-fill{fill:none; stroke-width:9; stroke-linecap:round; transition:stroke-dashoffset 1s ease;}
   .ring-track--sub{ stroke-width:7; }
   .ring-fill--sub{ stroke-width:7; }
+  .pulse-ring{ animation: ringPulse 2.4s ease-in-out infinite; }
+  #weather-ring{ animation-delay: 0.5s; }
+  @keyframes ringPulse{
+    0%, 100% { opacity: 1; }
+    50% { opacity: 0.55; }
+  }
   .tri-num-svg{
     font-family:'Doto', sans-serif; font-variation-settings:'ROND' 100;
     font-weight:900;
@@ -471,13 +479,13 @@
     <svg class="tri-svg" viewBox="0 0 360 300" xmlns="http://www.w3.org/2000/svg">
       <!-- Air ring (base left) — positioned by JS, overlaps only the Verdict ring -->
       <circle class="ring-track ring-track--sub" id="aqi-ring-track" cx="0" cy="0" r="55"></circle>
-      <circle class="ring-fill ring-fill--sub" id="aqi-ring" cx="0" cy="0" r="55" stroke="var(--cyan)"></circle>
+      <circle class="ring-fill ring-fill--sub pulse-ring" id="aqi-ring" cx="0" cy="0" r="55" stroke="var(--silver)"></circle>
       <text class="tri-num-sm-svg" id="aqi-ring-num" x="0" y="0" text-anchor="middle">--</text>
       <text class="tri-label-sm-svg" id="aqi-ring-label" x="0" y="0" text-anchor="middle">Air</text>
 
       <!-- Sky ring (base right) — positioned by JS, overlaps only the Verdict ring -->
       <circle class="ring-track ring-track--sub" id="weather-ring-track" cx="0" cy="0" r="55"></circle>
-      <circle class="ring-fill ring-fill--sub" id="weather-ring" cx="0" cy="0" r="55" stroke="var(--cyan)"></circle>
+      <circle class="ring-fill ring-fill--sub pulse-ring" id="weather-ring" cx="0" cy="0" r="55" stroke="var(--orange)"></circle>
       <text class="tri-num-sm-svg" id="weather-ring-num" x="0" y="0" text-anchor="middle">--</text>
       <text class="tri-label-sm-svg" id="weather-ring-label" x="0" y="0" text-anchor="middle">Sky</text>
 
@@ -938,10 +946,8 @@ async function render(){
   countUp(document.getElementById("combined-number"), combined, { duration: 750 });
   setRing(document.getElementById("combined-ring"), combined, true, tierColor, MAIN_R);
 
-  const aqiTierColor = {good:"var(--good)", ok:"var(--ok)", poor:"var(--poor)", bad:"var(--bad)"}[tierFor(aqiScore)];
-  const skyTierColor = {good:"var(--good)", ok:"var(--ok)", poor:"var(--poor)", bad:"var(--bad)"}[tierFor(wScore)];
-  layoutSub("aqi", 125, aqiScore, aqiTierColor);
-  layoutSub("weather", 55, wScore, skyTierColor);
+  layoutSub("aqi", 125, aqiScore, "var(--silver)");
+  layoutSub("weather", 55, wScore, "var(--orange)");
 
   const combinedText = {
     good: "Excellent conditions for being outdoors.",
