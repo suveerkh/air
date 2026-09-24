@@ -13,9 +13,6 @@
 <meta property="og:description" content="A live outdoor score blending real air quality and weather into one verdict — plus how it feels for running, walking, and cycling right now.">
 <meta property="og:site_name" content="Phantom Air">
 
-<meta name="twitter:card" content="summary">
-<meta name="twitter:title" content="Phantom Air">
-<meta name="twitter:description" content="A live outdoor score blending real air quality and weather into one verdict — plus how it feels for running, walking, and cycling right now.">
 <link rel="icon" type="image/png" href="logo.png">
 <link rel="apple-touch-icon" href="logo.png">
 
@@ -556,13 +553,6 @@
 </div>
 
 <script>
-/* ============================================================
-   FALLBACK SNAPSHOT — a real reading Claude fetched for Rajaji
-   Nagar, Bengaluru, used only if the live fetch below can't
-   complete (geolocation denied, or the network call is blocked —
-   see note in fetchConditions()).
-   ============================================================ */
-
 const FALLBACK_DATA = {
   place: "No location found",
   observedAt: "Today · 9:10 AM IST",
@@ -583,15 +573,6 @@ const FALLBACK_DATA = {
   isFallback: true
 };
 
-/* ============================================================
-   LIVE FETCH — Open-Meteo (free, no API key). Asks the browser
-   for your location, then calls Open-Meteo's forecast + air
-   quality endpoints directly. A page published to claude.ai runs
-   behind a content-security policy that blocks fetch() to
-   third-party domains, so this will typically fall back to
-   FALLBACK_DATA here — but the code is complete and correct, and
-   works with no changes on a normal, unsandboxed page.
-   ============================================================ */
 
 function getPosition(timeoutMs = 8000){
   return new Promise((resolve, reject) => {
@@ -681,9 +662,6 @@ async function fetchConditions(){
     clearTimeout(timeout);
     return data;
   } catch (err){
-    // Geolocation denied/unavailable, or the live fetch was blocked
-    // by this environment's content-security policy — use the
-    // real snapshot Claude fetched instead.
     console.warn("Live fetch unavailable, using fallback snapshot:", err.message);
     return FALLBACK_DATA;
   }
@@ -694,7 +672,6 @@ async function fetchConditions(){
 function clamp(n, min, max){ return Math.max(min, Math.min(max, n)); }
 
 function aqiToScore(aqi){
-  // 0 AQI -> 100, 100 AQI -> ~55, 200 AQI -> ~10, floors at 0
   return clamp(Math.round(100 - aqi * 0.45), 0, 100);
 }
 
@@ -707,7 +684,7 @@ function aqiCategory(aqi){
 }
 
 function tempComfort(tempC){
-  // peak comfort 16-23C, tapering outward
+  // peak comfort 16-23C
   const ideal = 19.5, spread = 9;
   const d = Math.abs(tempC - ideal);
   return clamp(100 - Math.pow(d / spread, 2) * 60, 0, 100);
@@ -760,11 +737,11 @@ function activityScore(kind, aqiScore, w){
   const r = rainPenalty(w.rainChance);
 
   if (kind === "running"){
-    // most sensitive to air quality and heat/humidity (exertion, deep breathing)
+    // most sensitive to air quality and heat/humidity
     return Math.round(aqiScore*0.5 + t*0.22 + h*0.13 + r*0.1 + wd*0.05);
   }
   if (kind === "cycling"){
-    // wind matters more, heat matters less (self-cooling from speed)
+    // wind matters more, heat matters less 
     return Math.round(aqiScore*0.4 + t*0.16 + wd*0.24 + r*0.14 + h*0.06);
   }
   // walking — most forgiving, lower exertion
