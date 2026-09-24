@@ -4,18 +4,18 @@
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
 <title>Phantom Air</title>
-<meta name="description" content="A live read on air quality and weather for Rajaji Nagar, Bengaluru — with a combined outdoor score and how it feels for running, walking, and cycling.">
+<meta name="description" content="A live outdoor score blending real air quality and weather into one verdict — plus how it feels for running, walking, and cycling right now.">
 <meta name="theme-color" content="#050a14">
 <meta name="color-scheme" content="dark">
 
 <meta property="og:type" content="website">
 <meta property="og:title" content="Phantom Air">
-<meta property="og:description" content="Combined air quality + weather score for Rajaji Nagar, Bengaluru, and how it feels for running, walking, and cycling today.">
+<meta property="og:description" content="A live outdoor score blending real air quality and weather into one verdict — plus how it feels for running, walking, and cycling right now.">
 <meta property="og:site_name" content="Phantom Air">
 
 <meta name="twitter:card" content="summary">
 <meta name="twitter:title" content="Phantom Air">
-<meta name="twitter:description" content="Combined air quality + weather score for Rajaji Nagar, Bengaluru, and how it feels for running, walking, and cycling today.">
+<meta name="twitter:description" content="A live outdoor score blending real air quality and weather into one verdict — plus how it feels for running, walking, and cycling right now.">
 
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
@@ -47,11 +47,7 @@
   body{
     margin:0;
     min-height:100%;
-    background:
-      radial-gradient(1100px 700px at 12% -8%, rgba(0,180,216,0.24), transparent 60%),
-      radial-gradient(900px 600px at 100% 10%, rgba(72,202,228,0.18), transparent 55%),
-      radial-gradient(1200px 800px at 50% 120%, rgba(0,119,182,0.20), transparent 60%),
-      linear-gradient(160deg, var(--sky-deep), var(--sky-mid) 55%, #061422 100%);
+    background:linear-gradient(160deg, var(--sky-deep), var(--sky-mid) 55%, #061422 100%);
     font-family:'Inter', -apple-system, sans-serif;
     color:var(--text-1);
     overflow-x:hidden;
@@ -116,6 +112,24 @@
     margin:0;
   }
 
+  .error-icon{ color:var(--bad); margin-bottom:4px; }
+  .error-heading{
+    font-family:'Inter', sans-serif;
+    font-weight:700;
+    font-size:38px;
+    color:var(--text-1);
+    margin:0;
+  }
+  .error-sub{
+    font-family:'Inter', sans-serif;
+    font-size:17px;
+    color:var(--text-3);
+    max-width:400px;
+    text-align:center;
+    line-height:1.55;
+    margin:0;
+  }
+
   .wrap{
     position:relative;
     z-index:1;
@@ -126,9 +140,17 @@
 
   .brand{
     display:flex;
-    align-items:baseline;
+    align-items:center;
     gap:8px;
-    margin-bottom:10px;
+    margin-bottom:6px;
+  }
+  .brand-mark{ flex-shrink:0; margin-bottom:1px; }
+  .tagline{
+    font-family:'Inter', sans-serif;
+    font-size:12px;
+    font-weight:500;
+    color:var(--text-3);
+    margin:0 0 10px;
   }
   .phantom{
     font-family:'Poppins', sans-serif;
@@ -172,43 +194,18 @@
   /* Hero: combined score */
   .hero{
     position:relative;
-    border-radius:28px;
-    padding:44px 40px;
-    background:
-      linear-gradient(135deg, rgba(255,255,255,0.10), rgba(255,255,255,0.03)),
-      var(--glass);
-    border:1px solid var(--glass-border);
-    backdrop-filter:blur(28px) saturate(160%);
-    -webkit-backdrop-filter:blur(28px) saturate(160%);
-    box-shadow: 0 20px 60px rgba(0,0,0,0.35), inset 0 1px 0 rgba(255,255,255,0.15);
+    padding:12px 20px 8px;
     display:flex;
+    flex-direction:column;
     align-items:center;
-    justify-content:space-between;
-    gap:40px;
-    flex-wrap:wrap;
+    text-align:center;
     margin-bottom:28px;
-  }
-  .hero-left{flex:1; min-width:240px;}
-  .hero-label{
-    font-family:'Inter', sans-serif;
-    font-weight:600;
-    font-size:15px;
-    color:var(--text-2);
-    margin:0 0 10px;
-  }
-  .hero-number{
-    font-family:'Doto', sans-serif; font-variation-settings:'ROND' 100;
-    font-weight:900;
-    font-size:clamp(64px, 11vw, 108px);
-    line-height:0.95;
-    margin:0;
-    color:#ffffff;
   }
   .hero-verdict{
     font-size:18px;
     font-weight:600;
     color:var(--text-1);
-    margin-top:12px;
+    margin-top:4px;
     max-width:420px;
     line-height:1.45;
   }
@@ -216,24 +213,46 @@
     font-size:14px;
     font-weight:500;
     color:var(--text-2);
-    margin-top:8px;
+    margin-top:6px;
     max-width:420px;
     letter-spacing:0.01em;
   }
-  .hero-ring{
-    position:relative;
-    width:180px;
-    height:180px;
-    flex-shrink:0;
+
+  /* one connected triangle diagram: Verdict at the apex, Air + Sky as the base, joined by connector lines */
+  .tri-svg{
+    width:100%;
+    max-width:340px;
+    height:auto;
+    margin:6px 0 4px;
   }
-  .hero-ring svg{transform:rotate(-90deg);}
-  .ring-track{fill:none; stroke:rgba(255,255,255,0.10); stroke-width:10;}
-  .ring-fill{fill:none; stroke-width:10; stroke-linecap:round; transition:stroke-dashoffset 1s ease;}
-  .ring-center{
-    position:absolute; inset:0;
-    display:flex; flex-direction:column; align-items:center; justify-content:center;
+  .ring-track{fill:none; stroke:rgba(255,255,255,0.10); stroke-width:9;}
+  .ring-fill{fill:none; stroke-width:9; stroke-linecap:round; transition:stroke-dashoffset 1s ease;}
+  .ring-track--sub{ stroke-width:7; }
+  .ring-fill--sub{ stroke-width:7; }
+  .tri-num-svg{
+    font-family:'Doto', sans-serif; font-variation-settings:'ROND' 100;
+    font-weight:900;
+    font-size:77px;
+    fill:#ffffff;
   }
-  .ring-center .n{font-family:'Inter', sans-serif; font-size:13px; color:var(--text-2);}
+  .tri-label-svg{
+    font-family:'Inter', sans-serif;
+    font-size:13px;
+    font-weight:600;
+    fill:var(--text-2);
+  }
+  .tri-num-sm-svg{
+    font-family:'Inter', sans-serif;
+    font-weight:800;
+    font-size:25px;
+    fill:#ffffff;
+  }
+  .tri-label-sm-svg{
+    font-family:'Inter', sans-serif;
+    font-size:10.5px;
+    font-weight:600;
+    fill:var(--text-3);
+  }
 
   /* metric row — single merged panel */
   .metrics-card{
@@ -311,7 +330,7 @@
     text-align:left;
   }
   .detail .k{font-size:12px; color:var(--text-3); margin-bottom:4px;}
-  .detail .v{font-size:16px; font-weight:600; color:var(--text-1); font-family:'Inter', sans-serif;}
+  .detail .v{font-size:16px; font-weight:600; color:var(--text-2); font-family:'Inter', sans-serif;}
 
   /* activities */
   .section-label{
@@ -330,17 +349,14 @@
 
   @media (max-width:460px){
     .wrap{ padding:32px 16px 56px; }
-    .hero{ padding:30px 24px; gap:24px; }
-    .hero-ring{ width:140px; height:140px; }
-    .hero-ring svg{ width:140px; height:140px; }
-    .metrics-col{ padding:22px; }
+    .hero{ padding:8px 16px 4px; }
+    .tri-svg{ max-width:280px; }
     .activity-card{ padding:20px; }
-    .detail-grid{ grid-template-columns:repeat(3, 1fr); gap:8px; }
-    .detail .v{ font-size:14px; }
     header{ gap:14px; }
   }
 
   .activity-card{
+    position:relative;
     border-radius:22px;
     padding:26px;
     background:rgba(140,200,230,0.045);
@@ -367,6 +383,21 @@
     .activity-card--top:hover{ transform:translateY(-9px); }
   }
   .activity-top{display:flex; align-items:center; justify-content:space-between; gap:10px; flex-wrap:wrap;}
+  .best-tag{
+    position:absolute;
+    top:16px;
+    right:16px;
+    font-family:'Inter', sans-serif;
+    font-size:10px;
+    font-weight:800;
+    letter-spacing:0.03em;
+    text-transform:uppercase;
+    color:#0a2440;
+    background:#ffd166;
+    padding:5px 10px;
+    border-radius:100px;
+    white-space:nowrap;
+  }
   .activity-name{font-family:'Inter', sans-serif; font-weight:700; font-size:16px;}
   .activity-icon{width:34px; height:34px; display:flex; align-items:center; justify-content:center; opacity:0.9;}
   .activity-score{font-family:'Inter', sans-serif; font-weight:600; font-size:16px; display:flex; align-items:baseline; gap:6px;}
@@ -387,14 +418,26 @@
 <body>
 
 <div id="loading-screen" class="loading-screen">
-  <div class="loading-brand">
-    <span class="phantom">Phantom</span>
-    <span class="air">Air</span>
+  <div id="loading-state" style="display:flex; flex-direction:column; align-items:center; gap:18px;">
+    <div class="loading-brand">
+      <span class="phantom">Phantom</span>
+      <span class="air">Air</span>
+    </div>
+    <div class="loading-dots">
+      <span></span><span></span><span></span>
+    </div>
+    <p class="loading-text">Reading conditions…</p>
   </div>
-  <div class="loading-dots">
-    <span></span><span></span><span></span>
+
+  <div id="error-state" style="display:none; flex-direction:column; align-items:center; gap:22px;">
+    <svg class="error-icon" width="90" height="90" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round">
+      <path d="M12 22s8-8.5 8-13a8 8 0 1 0-16 0c0 4.5 8 13 8 13z"></path>
+      <circle cx="12" cy="9" r="2.5"></circle>
+      <line x1="3.5" y1="3.5" x2="20.5" y2="20.5"></line>
+    </svg>
+    <p class="error-heading">Location Unavailable</p>
+    <p class="error-sub">We can't show real air quality or weather without your location. Enable location access and reload to see today's numbers.</p>
   </div>
-  <p class="loading-text">Reading conditions…</p>
 </div>
 
 <div class="blob blob-a"></div>
@@ -404,33 +447,49 @@
 <div class="wrap">
 
   <header>
-    <div class="brand">
-      <span class="phantom">Phantom</span>
-      <span class="air">Air</span>
+    <div>
+      <div class="brand">
+        <svg class="brand-mark" width="30" height="21" viewBox="0 0 34 24" xmlns="http://www.w3.org/2000/svg">
+          <line x1="1" y1="8" x2="9" y2="8" stroke="#ffffff" stroke-width="1.8" stroke-linecap="round"></line>
+          <line x1="1" y1="12.5" x2="11.5" y2="12.5" stroke="#ffffff" stroke-width="1.8" stroke-linecap="round"></line>
+          <line x1="1" y1="17" x2="7" y2="17" stroke="#ffffff" stroke-width="1.8" stroke-linecap="round"></line>
+          <path transform="translate(9,2) scale(0.72)" d="M19.35 10.04C18.67 6.59 15.64 4 12 4 9.11 4 6.6 5.64 5.35 8.04 2.34 8.36 0 10.91 0 14c0 3.31 2.69 6 6 6h13c2.76 0 5-2.24 5-5 0-2.64-2.05-4.78-4.65-4.96z" fill="var(--cyan)"></path>
+        </svg>
+        <span class="phantom">Phantom</span>
+        <span class="air">Air</span>
+      </div>
+      <p class="tagline">The verdict on your air.</p>
     </div>
     <div class="location-block">
-      <div class="place"><b id="place-name">Rajaji Nagar, Bengaluru</b> <span class="dot" id="location-dot"></span></div>
+      <div class="place"><b id="place-name">No location found</b> <span class="dot" id="location-dot"></span></div>
       <div class="timestamp" id="timestamp">Loading conditions…</div>
     </div>
   </header>
 
-  <!-- Combined score hero -->
+  <!-- Combined score hero — one connected triangle diagram -->
   <div class="hero">
-    <div class="hero-left">
-      <p class="hero-label">Combined outdoor score</p>
-      <p class="hero-number" id="combined-number">--</p>
-      <p class="hero-verdict" id="combined-verdict">Reading current air and sky conditions…</p>
-      <p class="hero-factors" id="combined-factors"></p>
-    </div>
-    <div class="hero-ring">
-      <svg width="180" height="180" viewBox="0 0 180 180">
-        <circle class="ring-track" cx="90" cy="90" r="78"></circle>
-        <circle class="ring-fill" id="combined-ring" cx="90" cy="90" r="78" stroke="var(--cyan)"></circle>
-      </svg>
-      <div class="ring-center">
-        <div class="n" id="ring-label">out of 100</div>
-      </div>
-    </div>
+    <svg class="tri-svg" viewBox="0 0 360 300" xmlns="http://www.w3.org/2000/svg">
+      <!-- Air ring (base left) — positioned by JS, overlaps only the Verdict ring -->
+      <circle class="ring-track ring-track--sub" id="aqi-ring-track" cx="0" cy="0" r="55"></circle>
+      <circle class="ring-fill ring-fill--sub" id="aqi-ring" cx="0" cy="0" r="55" stroke="var(--cyan)"></circle>
+      <text class="tri-num-sm-svg" id="aqi-ring-num" x="0" y="0" text-anchor="middle">--</text>
+      <text class="tri-label-sm-svg" id="aqi-ring-label" x="0" y="0" text-anchor="middle">Air</text>
+
+      <!-- Sky ring (base right) — positioned by JS, overlaps only the Verdict ring -->
+      <circle class="ring-track ring-track--sub" id="weather-ring-track" cx="0" cy="0" r="55"></circle>
+      <circle class="ring-fill ring-fill--sub" id="weather-ring" cx="0" cy="0" r="55" stroke="var(--cyan)"></circle>
+      <text class="tri-num-sm-svg" id="weather-ring-num" x="0" y="0" text-anchor="middle">--</text>
+      <text class="tri-label-sm-svg" id="weather-ring-label" x="0" y="0" text-anchor="middle">Sky</text>
+
+      <!-- Verdict ring (apex) — fixed position -->
+      <circle class="ring-track" cx="195" cy="100" r="95"></circle>
+      <circle class="ring-fill" id="combined-ring" cx="195" cy="100" r="95" stroke="var(--cyan)" transform="rotate(-90 195 100)"></circle>
+      <text class="tri-num-svg" x="195" y="123" text-anchor="middle" id="combined-number">--</text>
+      <text class="tri-label-svg" x="195" y="153" text-anchor="middle">Outdoor score</text>
+    </svg>
+
+    <p class="hero-verdict" id="combined-verdict">Reading current air and sky conditions…</p>
+    <p class="hero-factors" id="combined-factors"></p>
   </div>
 
   <!-- AQI + Weather (single merged panel) -->
@@ -438,13 +497,16 @@
     <div class="metrics-col">
       <div class="card-head">
         <div>
-          <p class="card-title">Air quality</p>
           <p class="card-sub">Overall AQI</p>
         </div>
         <span class="pill" id="aqi-pill">—</span>
       </div>
       <div class="stat-row"><span id="aqi-value-num" class="num-dot">0</span><span class="stat-unit">AQI</span></div>
-      <p class="score-line">Outdoor score <span id="aqi-score" class="bright-num">0</span><span class="score-of">/100</span></p>
+      <div class="detail-grid">
+        <div class="detail"><div class="k">Dominant</div><div class="v" id="aqi-dominant">--</div></div>
+        <div class="detail"><div class="k">PM2.5</div><div class="v" id="aqi-pm25">--</div></div>
+        <div class="detail"><div class="k">PM10</div><div class="v" id="aqi-pm10">--</div></div>
+      </div>
     </div>
 
     <div class="metrics-divider"></div>
@@ -452,13 +514,11 @@
     <div class="metrics-col">
       <div class="card-head">
         <div>
-          <p class="card-title">Weather</p>
           <p class="card-sub" id="weather-condition">—</p>
         </div>
         <span class="pill" id="weather-pill">—</span>
       </div>
       <div class="stat-row"><span id="temp-value-num" class="num-dot">0</span><span class="stat-unit">°C</span></div>
-      <p class="score-line">Outdoor score <span id="weather-score" class="bright-num">0</span><span class="score-of">/100</span></p>
       <div class="detail-grid">
         <div class="detail"><div class="k">Humidity</div><div class="v" id="humidity">--</div></div>
         <div class="detail"><div class="k">Wind</div><div class="v" id="wind">--</div></div>
@@ -467,7 +527,7 @@
     </div>
   </div>
 
-  <p class="section-label">How it feels for outdoor activity</p>
+  <p class="section-label">Out There Today</p>
   <div class="activities" id="activities"></div>
 
   <footer>
@@ -485,7 +545,7 @@
    ============================================================ */
 
 const FALLBACK_DATA = {
-  place: "Rajaji Nagar, Bengaluru",
+  place: "No location found",
   observedAt: "Today · 9:10 AM IST",
   weather: {
     tempC: 24,
@@ -551,9 +611,9 @@ async function fetchLocationName(lat, lon, signal){
     const suburb = addr.suburb || addr.neighbourhood || addr.residential || addr.subdivision;
     const city = addr.city || addr.town || addr.village || addr.county || addr.state_district;
     if (suburb && city) return `${suburb}, ${city}`;
-    return suburb || city || "Your location";
+    return suburb || city || "No location found";
   } catch (err){
-    return "Your location";
+    return "No location found";
   }
 }
 
@@ -768,9 +828,8 @@ function cycleIcon(){
   </svg>`;
 }
 
-function setRing(el, score, animate, color){
-  const r = 78;
-  const c = 2 * Math.PI * r;
+function setRing(el, score, animate, color, radius = 64){
+  const c = 2 * Math.PI * radius;
   el.setAttribute("stroke-dasharray", c);
   if (color) el.style.stroke = color;
   if (!animate){
@@ -804,24 +863,85 @@ function countUp(el, end, { duration = 650, delay = 0, suffix = "" } = {}){
   requestAnimationFrame(tick);
 }
 
+const MAIN_R = 95, MAIN_CX = 195, MAIN_CY = 100;
+const SUB_R = 55, OVERLAP_PX = 11, EDGE_GAP_PX = 20;
+
+function showLocationError(){
+  document.getElementById("loading-state").style.display = "none";
+  document.getElementById("error-state").style.display = "flex";
+}
+
 async function render(){
   const data = await fetchConditions();
   const { place, observedAt, weather, air } = data;
 
+  if (data.isFallback){
+    showLocationError();
+    return;
+  }
+
   document.getElementById("place-name").textContent = place;
   document.getElementById("timestamp").textContent = observedAt;
-  document.getElementById("location-dot").classList.toggle("offline", !!data.isFallback);
+  document.getElementById("location-dot").classList.remove("offline");
 
   const aqiScore = aqiToScore(air.aqi);
   const wScore = weatherScoreOf(weather);
   const combined = Math.round(aqiScore*0.5 + wScore*0.5);
   const combinedTier = tierFor(combined);
 
-  // Hero
-  countUp(document.getElementById("combined-number"), combined, { duration: 750 });
-  document.getElementById("ring-label").textContent = "out of 100";
+  // Hero — Verdict ring fixed at the apex; Air/Sky positioned so they each
+  // overlap only the Verdict ring (not each other), with a real geometric
+  // gap plus a fixed 20px edge clearance where they tuck behind it.
+  function layoutSub(prefix, directionDeg, score, color){
+    const rad = directionDeg * Math.PI / 180;
+    const distance = (MAIN_R + SUB_R) - OVERLAP_PX;
+    const cx = MAIN_CX + distance * Math.cos(rad);
+    const cy = MAIN_CY + distance * Math.sin(rad);
+
+    const track = document.getElementById(`${prefix}-ring-track`);
+    const fill = document.getElementById(`${prefix}-ring`);
+    const num = document.getElementById(`${prefix}-ring-num`);
+    const label = document.getElementById(`${prefix}-ring-label`);
+    label.setAttribute("x", cx); label.setAttribute("y", cy + 24);
+
+    track.setAttribute("cx", cx); track.setAttribute("cy", cy);
+    fill.setAttribute("cx", cx); fill.setAttribute("cy", cy);
+    num.setAttribute("x", cx); num.setAttribute("y", cy + 6);
+    fill.style.stroke = color;
+
+    const C = 2 * Math.PI * SUB_R;
+    let gapDeg = 0;
+    if (distance < MAIN_R + SUB_R && distance > Math.abs(MAIN_R - SUB_R)){
+      const a = (distance*distance + SUB_R*SUB_R - MAIN_R*MAIN_R) / (2*distance);
+      const h = Math.sqrt(Math.max(0, SUB_R*SUB_R - a*a));
+      gapDeg = 2 * Math.atan2(h, a) * (180/Math.PI);
+      const paddingDeg = (EDGE_GAP_PX / SUB_R) * (180/Math.PI);
+      gapDeg += 2 * paddingDeg;
+    }
+
+    const gapLen = C * (gapDeg/360);
+    const visibleLen = C - gapLen;
+    const angleToMain = Math.atan2(MAIN_CY - cy, MAIN_CX - cx) * (180/Math.PI);
+    const rotation = angleToMain + gapDeg/2;
+
+    track.setAttribute("stroke-dasharray", `${visibleLen} ${gapLen}`);
+    track.setAttribute("transform", gapDeg > 0 ? `rotate(${rotation} ${cx} ${cy})` : "");
+
+    const fillLen = (score / 100) * visibleLen;
+    fill.setAttribute("stroke-dasharray", `${fillLen} ${C - fillLen}`);
+    fill.setAttribute("transform", gapDeg > 0 ? `rotate(${rotation} ${cx} ${cy})` : `rotate(-90 ${cx} ${cy})`);
+
+    countUp(num, score, { duration: 650, delay: 100 });
+  }
+
   const tierColor = {good:"var(--good)", ok:"var(--ok)", poor:"var(--poor)", bad:"var(--bad)"}[combinedTier];
-  setRing(document.getElementById("combined-ring"), combined, true, tierColor);
+  countUp(document.getElementById("combined-number"), combined, { duration: 750 });
+  setRing(document.getElementById("combined-ring"), combined, true, tierColor, MAIN_R);
+
+  const aqiTierColor = {good:"var(--good)", ok:"var(--ok)", poor:"var(--poor)", bad:"var(--bad)"}[tierFor(aqiScore)];
+  const skyTierColor = {good:"var(--good)", ok:"var(--ok)", poor:"var(--poor)", bad:"var(--bad)"}[tierFor(wScore)];
+  layoutSub("aqi", 125, aqiScore, aqiTierColor);
+  layoutSub("weather", 55, wScore, skyTierColor);
 
   const combinedText = {
     good: "Excellent conditions for being outdoors.",
@@ -835,14 +955,15 @@ async function render(){
   // AQI card
   const cat = aqiCategory(air.aqi);
   countUp(document.getElementById("aqi-value-num"), air.aqi, { duration: 650 });
-  countUp(document.getElementById("aqi-score"), aqiScore, { duration: 650 });
+  document.getElementById("aqi-dominant").textContent = air.dominant;
+  document.getElementById("aqi-pm25").textContent = `${air.pm25} µg/m³`;
+  document.getElementById("aqi-pm10").textContent = `${air.pm10} µg/m³`;
   const aqiPill = document.getElementById("aqi-pill");
   aqiPill.textContent = cat.label;
   aqiPill.className = `pill ${cat.tier}`;
 
   // Weather card
   countUp(document.getElementById("temp-value-num"), weather.tempC, { duration: 650 });
-  countUp(document.getElementById("weather-score"), wScore, { duration: 650 });
   document.getElementById("weather-condition").textContent = weather.condition;
   const wPill = document.getElementById("weather-pill");
   const wTier = tierFor(wScore);
@@ -874,6 +995,7 @@ async function render(){
     const card = document.createElement("div");
     card.className = "activity-card" + (isTop ? " activity-card--top" : "");
     card.innerHTML = `
+      ${isTop ? `<span class="best-tag">Best for today</span>` : ""}
       <div class="activity-top">
         <div style="display:flex; align-items:center; gap:10px;">
           <span class="activity-icon" style="color:${colorVar}">${meta.icon}</span>
